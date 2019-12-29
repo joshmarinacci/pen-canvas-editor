@@ -1,6 +1,72 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import {Storage} from "./storage.js"
+
+const HBox = (props) => {
+  const styles = {display:'flex', flexDirection:'row'}
+  if(props.grow) {
+    styles.flex = '1.0'
+  }
+  return <div style={styles}>{props.children}</div>
+}
+const VBox = (props) => {
+  const styles = {display:'flex', flexDirection:'column'}
+  if(props.grow) {
+    styles.flex = '1.0'
+  }
+  return <div style={styles}>{props.children}</div>
+}
+
+const Toolbox = (props) => {
+  const {style, ...rest} = props
+  style.border = '1px solid black'
+  return <HBox  style={style} ...rest/>
+}
+
+// a button just showing a color, no text
+const ColorButton = ({color, caption}) => {
+  const style = {
+    backgroundColor:color,
+    height:'1em',
+    width:'1em',
+  }
+  return <button style={style}/>
+}
+
+
+// a triangle/ring HSL picker
+const HSLPicker = () => {
+  return <div>hsl picker</div>
+}
+// sliders and hex input, 0-255 & hex output
+const HSLPicker = () => {
+  return <div>hsl picker</div>
+}
+
+// the N most recent colors
+const RecentColors = () => {
+  return <div>some colors</div>
+};
+
+// the list of customized pens
+const RecentPens = () => {
+  return <div>some pens</div>
+};
+
+// panel that shows settings for a pen, let you customize them
+const PenEditor = () => {
+  return <div> edit the pen</div>
+};
+
+// panel for a single Layer. no DnD for now.
+const LayerView = () => {
+  return <HBox>
+    <label>title</label>
+    <button>toggle visible</button>
+    <label>thumbnail</label>
+  </HBox>
+}
+
 
 
 const doc = {
@@ -77,17 +143,6 @@ const pens = [
   }
 ]
 
-let HBox;
-let VBox;
-let Toolbox; //a pretty toolbox hbox
-
-let ColorButton; // a button just showing a color
-let HSLPicker; // a triangle/ring HSL picker
-let RGBPicker; // sliders and hex input, 0-255 & hex output
-let RecentColors; // the N most recent colors
-let RecentPens; // the list of customized pens
-let PenEditor; // panel that shows settings for a pen, let you customize them
-let LayerView; // panel for a single Layer. no DnD for now.
 let ListView; // a vbox w/ scrolling and a toolbar of buttons to add
 
 let DraggablePanel; // small window in the dialog layer that you can drag around
@@ -96,46 +151,44 @@ let DialogScrim; //scrim to block the background while dialog is visible
 let Popup; //standard popup container w/
 let PopupScrim; //scrim to block the background while popup is visible
 
-let CanvasWrapper; //scrolling container for the canvas
 let PenCanvas; //a stack of Canvas objects that you can rotate, zoom, and pan w/ your fingers
-
-
-// all methods return promises
-//stored docs also have low res thumbnails embedded
-class Storage {
-  save(doc) {}
-  list() {}
-  load(docid) {} //loads the actual JSON to an object graph
-  JSONToDoc() {} //expands the layer data into actual canvas objects
-  DocToJSON() {} //turns canvas objects into layer data
-}
-
 
 
 const localStorage = new Storage()
 
-
-
+const saveDoc = () => {
+  console.log("saving")
+}
+const showLoadDocDialog = () => {
+  console.log("showing the load dialog")
+}
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const layers = doc.layers.map((layer,i) => <LayerView key={i} layer={layer} doc={doc}/>)
+  const layerWrapper = <VBox>{layers}
+  <Toolbox>
+    <button>add</button>
+  </Toolbox>
+  </VBox>
+  return <div>
+    <VBox>
+      <Toolbox>
+        <button onClick={saveDoc}>save</button>
+        <button onClick={showLoadDocDialog}>open</button>
+      </Toolbox>
+      <HBox grow>
+        <RecentPens/>
+        <PenCanvas doc={doc} grow/>
+        {layerWrapper}
+      </HBox>
+      <HBox>
+        <RecentColors/>
+        <button>pick</button>
+      </HBox>
+    </VBox>
+    <DialogContainer/>
+    <PopupContainer/>
+  </div>
 }
 
 export default App;
