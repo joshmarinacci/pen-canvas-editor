@@ -218,6 +218,17 @@ function clearStorage() {
   })
 }
 
+function exportPNG() {
+  storage.exportToPNGURL(docObserver.get()).then((url)=>{
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'layers.png'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  })
+}
+
 function App() {
   const [doc,setDoc] = useState(docObserver.get())
   useEffect(()=>{
@@ -246,6 +257,7 @@ function App() {
         <button onClick={saveDoc}>save</button>
         <button onClick={showLoadDocDialog}>open</button>
         <button onClick={clearStorage}>clear</button>
+        <button onClick={exportPNG}>png</button>
       </Toolbox>
       <label>{doc.title}</label>
       <HBox grow>
