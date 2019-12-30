@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
@@ -64,7 +64,7 @@ const PenEditor = () => {
   return <div> edit the pen</div>
 };
 // panel for a single Layer. no DnD for now.
-const LayerView = () => {
+const LayerView = ({layer}) => {
   return <HBox style={{
     border: '1px solid black',
     borderWidth:'1px 0px 0 0px',
@@ -72,6 +72,7 @@ const LayerView = () => {
   }}>
     <label>title</label>
     <button>v</button>
+    {/*{layer.thumb.canvas}*/}
     <label>thumbnail</label>
   </HBox>
 }
@@ -173,16 +174,57 @@ const pens = [
 //let PenCanvas; //a stack of Canvas objects that you can rotate, zoom, and pan w/ your fingers
 
 
-const localStorage = new Storage()
+const storage = new Storage()
+
+class Observer {
+  constructor(value) {
+    this.cbs = []
+    this.value = value
+  }
+  addEventListener(cb) {
+    this.cbs.push(cb)
+  }
+  removeEventListener(cb) {
+    this.cbs = this.cbs.filter(c => c!==cb)
+  }
+  get() { return this.value }
+  set(value) {
+    this.value = value
+    this.notify(this.value)
+  }
+  notify(e) {
+    this.cbs.forEach(cb=>cb(e))
+  }
+}
+const docObserver = new Observer(doc)
 
 const saveDoc = () => {
-  console.log("saving")
+  storage.save(docObserver.get()).then(()=>{
+    console.log("done saving",docObserver.get())
+  })
 }
 const showLoadDocDialog = () => {
-  console.log("showing the load dialog")
+  storage.list().then(items => {
+    storage.load(items[0].id).then(doc => {
+      console.log("loaded the doc",doc)
+      docObserver.set(doc)
+    })
+  })
+}
+
+function clearStorage() {
+  storage.clear().then(()=>{
+    console.log('everything is cleared')
+  })
 }
 
 function App() {
+  const [doc,setDoc] = useState(docObserver.get())
+  useEffect(()=>{
+    const onChange = (val)=> setDoc(val)
+    docObserver.addEventListener(onChange)
+    return ()=> docObserver.removeEventListener(onChange)
+  })
   const layers = doc.layers.map((layer,i) => <LayerView key={i} layer={layer} doc={doc}/>)
   const layerWrapper = <VBox style={{
     width:'200px',
@@ -203,7 +245,9 @@ function App() {
       <Toolbox>
         <button onClick={saveDoc}>save</button>
         <button onClick={showLoadDocDialog}>open</button>
+        <button onClick={clearStorage}>clear</button>
       </Toolbox>
+      <label>{doc.title}</label>
       <HBox grow>
         <RecentPens/>
         <PenCanvas doc={doc} grow/>

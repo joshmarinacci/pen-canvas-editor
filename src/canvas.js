@@ -5,6 +5,9 @@ export class PenCanvas extends Component {
         this.redraw()
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.redraw()
+    }
 
 
     render() {
@@ -18,15 +21,23 @@ export class PenCanvas extends Component {
                    }}
                    width={500}
                    height={500}
+                   onClick={(e)=>this.draw(e)}
            ></canvas>
         </div>
     }
 
     redraw() {
-        console.log("drawing ",this.props.doc)
         this.props.doc.layers.forEach(layer => {
             const c = this.canvas.getContext('2d')
             c.drawImage(layer.canvas,0,0)
         })
+    }
+
+    draw(e) {
+        const can = this.props.doc.layers[0].canvas
+        const c = can.getContext('2d')
+        c.fillStyle = 'blue'
+        c.fillRect(e.clientX,e.clientY,25,25)
+        this.redraw()
     }
 }

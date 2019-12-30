@@ -21,20 +21,67 @@ export class Storage {
         )
     }
 
+    clear() {
+        return Promise.resolve(localStorage.clear())
+    }
+
     //loads the actual JSON to an object graph
-    load(docid) {
-        const str = localStorage.getItem(docid)
+    load(id) {
+        const str = localStorage.getItem(id)
         const json = JSON.parse(str)
-        const doc = this.JSONToDoc(json)
-        return Promise.resolve(doc)
+        return this.JSONToDoc(json)
     }
 
     //expands the layer data into actual canvas objects
-    JSONToDoc() {
-
+    JSONToDoc(json) {
+        return new Promise((res,rej)=> {
+            console.log("processing json", json)
+            const doc = {
+                title: json.title + "better",
+                width: json.width,
+                height: json.height,
+                layers: []
+            }
+            doc.layers = json.layers.map(layer => {
+                const canvas = document.createElement('canvas')
+                canvas.width = layer.width
+                canvas.height = layer.height
+                const img = new Image(layer.width, layer.height)
+                img.onload = () => {
+                    console.log("restored canvas", canvas)
+                    canvas.getContext('2d').drawImage(img, 0, 0)
+                    res(doc)
+                }
+                img.src = layer.data
+                return {
+                    type: layer.type,
+                    title: layer.title,
+                    width: layer.width,
+                    height: layer.height,
+                    //no data
+                    canvas: canvas
+                }
+            })
+        })
     }
     //turns canvas objects into layer data
-    DocToJSON() {
-
+    DocToJSON(doc) {
+        const d2 = {
+            title:doc.title,
+            width:doc.width,
+            height:doc.height
+        }
+        d2.layers = doc.layers.map(layer => {
+            return {
+                type:layer.type,
+                title:layer.title,
+                width:layer.width,
+                height:layer.height,
+                visible:layer.visible,
+                //no canvas
+                data: layer.canvas.toDataURL('png')
+            }
+        })
+        return d2
     }
 }
