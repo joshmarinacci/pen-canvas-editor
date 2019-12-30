@@ -1,28 +1,36 @@
 import React from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
+import {PenCanvas} from "./canvas.js"
 
 const HBox = (props) => {
-  const styles = {display:'flex', flexDirection:'row'}
-  if(props.grow) {
-    styles.flex = '1.0'
+  const {style, ...rest} = props
+
+  const styles = {
+    display:'flex',
+    flexDirection:'row',
+    ...style
   }
+  if(props.grow) styles.flex = '1.0'
   return <div style={styles}>{props.children}</div>
 }
 const VBox = (props) => {
-  const styles = {display:'flex', flexDirection:'column'}
-  if(props.grow) {
-    styles.flex = '1.0'
-  }
-  return <div style={styles}>{props.children}</div>
-}
-
-const Toolbox = (props) => {
   const {style, ...rest} = props
-  style.border = '1px solid black'
-  return <HBox  style={style} ...rest/>
+  const styles = {
+    display:'flex',
+    flexDirection:'column',
+        ...style
+  }
+  if(props.grow) styles.flex = '1.0'
+  return <div style={styles} {...rest}>{props.children}</div>
 }
-
+//an hbox with a border
+const Toolbox = (props) => {
+  const style = {
+  //  border: '1px solid black'
+  }
+  return <HBox  style={style} {...props}/>
+}
 // a button just showing a color, no text
 const ColorButton = ({color, caption}) => {
   const style = {
@@ -32,87 +40,100 @@ const ColorButton = ({color, caption}) => {
   }
   return <button style={style}/>
 }
-
-
 // a triangle/ring HSL picker
 const HSLPicker = () => {
   return <div>hsl picker</div>
 }
 // sliders and hex input, 0-255 & hex output
-const HSLPicker = () => {
-  return <div>hsl picker</div>
+const RGBPicker = () => {
+  return <div>rgb picker</div>
 }
-
 // the N most recent colors
 const RecentColors = () => {
   return <div>some colors</div>
 };
-
 // the list of customized pens
 const RecentPens = () => {
-  return <div>some pens</div>
+  return <VBox style={{
+    minWidth:'100px',
+    border:'1px solid black',
+  }}>some pens</VBox>
 };
-
 // panel that shows settings for a pen, let you customize them
 const PenEditor = () => {
   return <div> edit the pen</div>
 };
-
 // panel for a single Layer. no DnD for now.
 const LayerView = () => {
-  return <HBox>
+  return <HBox style={{
+    border: '1px solid black',
+    borderWidth:'1px 0px 0 0px',
+    minWidth:'200px'
+  }}>
     <label>title</label>
-    <button>toggle visible</button>
+    <button>v</button>
     <label>thumbnail</label>
   </HBox>
 }
 
-
+const DialogContainer = ({}) => {
+  const style = {
+    display:"none"
+  }
+  return <div style={style}></div>
+}
+const PopupContainer = ({}) => {
+  const style = {
+    display:"none"
+  }
+  return <div style={style}></div>
+}
 
 const doc = {
   title:"my first doc",
-  width:1024,
-  height:1024,
+  width:500,
+  height:500,
   layers: [
     {
       type:'layer',
-      width:1024,
-      height:1024,
+      width:500,
+      height:500,
       title:'top layer',
       visible:true,
-      data:'b64data',
+      canvas: null,
       thumb:{
         width:64,
         height:64,
-        data:''
-      }
-    },
-    {
-      type:'layer',
-      width:1024,
-      height:1024,
-      title:'base layer',
-      visible:true,
-      data:'b64data',
-      thumb:{
-        width:64,
-        height:64,
-        data:''
-      }
-    },
-    {
-      type:'color-layer',
-      title:'background',
-      visible:true,
-      color:'#ffffff',
-      thumb:{
-        width:64,
-        height:64,
-        data:''
+        canvas:null,
       }
     },
   ]
 }
+
+function setupDoc(doc) {
+  const can = document.createElement('canvas')
+  const w = 500
+  const h = 500
+
+  can.width = w
+  can.height = h
+
+  const c = can.getContext('2d')
+  c.fillStyle = 'red'
+  c.fillRect(0,0,w,h)
+  c.fillStyle = 'white'
+  c.fillRect(w/4,h/4,w/2,h/2)
+
+  doc.layers[0].canvas = can
+
+  const tcan = document.createElement('canvas')
+  tcan.width = 64
+  tcan.height = 64
+  const c2 = tcan.getContext('2d')
+  c2.drawImage(can,0,0,64,64)
+  doc.layers[0].thumb.canvas = c2
+}
+setupDoc(doc)
 
 const pens = [
   {
@@ -143,15 +164,13 @@ const pens = [
   }
 ]
 
-let ListView; // a vbox w/ scrolling and a toolbar of buttons to add
-
-let DraggablePanel; // small window in the dialog layer that you can drag around
-let Dialog; // standard dialog container w/ title, body, and action bar
-let DialogScrim; //scrim to block the background while dialog is visible
-let Popup; //standard popup container w/
-let PopupScrim; //scrim to block the background while popup is visible
-
-let PenCanvas; //a stack of Canvas objects that you can rotate, zoom, and pan w/ your fingers
+//let ListView; // a vbox w/ scrolling and a toolbar of buttons to add
+//let DraggablePanel; // small window in the dialog layer that you can drag around
+//let Dialog; // standard dialog container w/ title, body, and action bar
+//let DialogScrim; //scrim to block the background while dialog is visible
+//let Popup; //standard popup container w/
+//let PopupScrim; //scrim to block the background while popup is visible
+//let PenCanvas; //a stack of Canvas objects that you can rotate, zoom, and pan w/ your fingers
 
 
 const localStorage = new Storage()
@@ -165,13 +184,22 @@ const showLoadDocDialog = () => {
 
 function App() {
   const layers = doc.layers.map((layer,i) => <LayerView key={i} layer={layer} doc={doc}/>)
-  const layerWrapper = <VBox>{layers}
+  const layerWrapper = <VBox style={{
+    width:'200px',
+    border:'0px solid red'
+  }}>{layers}
   <Toolbox>
     <button>add</button>
   </Toolbox>
   </VBox>
-  return <div>
-    <VBox>
+  return <div style={{
+    position:'fixed',
+    width:'100%',
+    height:'100%',
+    display:'flex',
+    flexDirection:'row'
+  }}>
+    <VBox grow>
       <Toolbox>
         <button onClick={saveDoc}>save</button>
         <button onClick={showLoadDocDialog}>open</button>
@@ -181,10 +209,10 @@ function App() {
         <PenCanvas doc={doc} grow/>
         {layerWrapper}
       </HBox>
-      <HBox>
+      <Toolbox>
         <RecentColors/>
         <button>pick</button>
-      </HBox>
+      </Toolbox>
     </VBox>
     <DialogContainer/>
     <PopupContainer/>
