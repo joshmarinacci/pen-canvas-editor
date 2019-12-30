@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
+import {Observer} from './util.js'
+import {Dragger, HSLPicker} from './colors.js'
 
 const HBox = (props) => {
   const {style, ...rest} = props
@@ -40,10 +42,7 @@ const ColorButton = ({color, caption}) => {
   }
   return <button style={style}/>
 }
-// a triangle/ring HSL picker
-const HSLPicker = () => {
-  return <div>hsl picker</div>
-}
+
 // sliders and hex input, 0-255 & hex output
 const RGBPicker = () => {
   return <div>rgb picker</div>
@@ -77,11 +76,32 @@ const LayerView = ({layer}) => {
   </HBox>
 }
 
+const dialogObserver = new Observer(null)
+
 const DialogContainer = ({}) => {
+  const [dialog,setDialog] = useState(dialogObserver.get())
+  useEffect(()=>{
+    const onChange = (val) => setDialog(val)
+    dialogObserver.addEventListener(onChange)
+    return () => dialogObserver.removeEventListener(onChange)
+  })
   const style = {
-    display:"none"
+    border:'1px solid red',
+    position:'fixed',
+    width:'100vw',
+    height:'100vh',
+    backgroundColor: 'rgba(255,255,255,0.9',
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
   }
-  return <div style={style}></div>
+  if(dialog === null) {
+    style.display = 'none'
+  }
+  return <div style={style}>
+    {dialog}
+  </div>
 }
 const PopupContainer = ({}) => {
   const style = {
@@ -176,26 +196,6 @@ const pens = [
 
 const storage = new Storage()
 
-class Observer {
-  constructor(value) {
-    this.cbs = []
-    this.value = value
-  }
-  addEventListener(cb) {
-    this.cbs.push(cb)
-  }
-  removeEventListener(cb) {
-    this.cbs = this.cbs.filter(c => c!==cb)
-  }
-  get() { return this.value }
-  set(value) {
-    this.value = value
-    this.notify(this.value)
-  }
-  notify(e) {
-    this.cbs.forEach(cb=>cb(e))
-  }
-}
 const docObserver = new Observer(doc)
 
 const saveDoc = () => {
@@ -227,6 +227,10 @@ function exportPNG() {
     a.click()
     document.body.removeChild(a)
   })
+}
+
+function showPicker() {
+  dialogObserver.set(<Dragger><HSLPicker/></Dragger>)
 }
 
 function App() {
@@ -267,9 +271,10 @@ function App() {
       </HBox>
       <Toolbox>
         <RecentColors/>
-        <button>pick</button>
+        {/*<button onClick={showPicker}>pick</button>*/}
       </Toolbox>
     </VBox>
+    <Dragger><HSLPicker/></Dragger>
     <DialogContainer/>
     <PopupContainer/>
   </div>
