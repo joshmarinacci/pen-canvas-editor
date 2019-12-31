@@ -235,6 +235,7 @@ function showPicker() {
 
 function App() {
   const [doc,setDoc] = useState(docObserver.get())
+  const [color,setColor] = useState({hue:0, sat:1.0, lit:0.5})
   useEffect(()=>{
     const onChange = (val)=> setDoc(val)
     docObserver.addEventListener(onChange)
@@ -266,7 +267,7 @@ function App() {
       <label>{doc.title}</label>
       <HBox grow>
         <RecentPens/>
-        <PenCanvas doc={doc} pen={pens[0]} grow/>
+        <PenCanvas doc={doc} pen={pens[0]} color={color} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>
@@ -274,7 +275,7 @@ function App() {
         {/*<button onClick={showPicker}>pick</button>*/}
       </Toolbox>
     </VBox>
-    <Dragger><HSLPicker/></Dragger>
+    <Dragger><HSLPicker color={color} onChange={setColor}/></Dragger>
     <DialogContainer/>
     <PopupContainer/>
   </div>

@@ -10,6 +10,10 @@ function getPoint(e) {
     )
 }
 
+function toDeg(hue) {
+    return hue / Math.PI * 180
+}
+
 export class PenCanvas extends Component {
     constructor(props) {
         super(props)
@@ -90,7 +94,8 @@ export class PenCanvas extends Component {
     }
 
     currentFill() {
-        return 'blue'
+        const color = this.props.color
+        return `hsl(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
     }
 
 }
