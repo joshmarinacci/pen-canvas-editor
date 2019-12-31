@@ -19,14 +19,16 @@ export class PenCanvas extends Component {
         super(props)
         this.pressed = false
         this.prev = null
-        this.mouseDown = (e) => {
+        this.pointerDown = (e) => {
+            if(e.pointerType === 'touch') return
             const pt = getPoint(e)
             this.pressed = true
             this.plotPoint(pt.x,pt.y)
             this.prev = pt
             this.redraw()
         }
-        this.mouseMove = (e) => {
+        this.pointerMove = (e) => {
+            if(e.pointerType === 'touch') return
             if(!this.pressed) return
             const pt = getPoint(e)
             let dist = this.prev.dist(pt)
@@ -39,7 +41,8 @@ export class PenCanvas extends Component {
             this.redraw()
             this.prev = pt
         }
-        this.mouseUp = () => {
+        this.pointerUp = (e) => {
+            if(e.pointerType === 'touch') return
             this.pressed = false
         }
     }
@@ -71,10 +74,10 @@ export class PenCanvas extends Component {
                    }}
                    width={500}
                    height={500}
-                   onMouseDown={this.mouseDown}
-                   onMouseMove={this.mouseMove}
-                   onMouseUp={this.mouseUp}
-           ></canvas>
+                   onPointerDown={this.pointerDown}
+                   onPointerMove={this.pointerMove}
+                   onPointerUp={this.pointerUp}
+           />
         </div>
     }
 

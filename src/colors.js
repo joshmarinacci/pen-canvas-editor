@@ -31,8 +31,8 @@ export class Dragger extends Component {
             this.setState({dragging: true})
             start = new Point(e.pageX, e.pageY)
             init = this.state.pos.copy()
-            window.addEventListener('mousemove', this.doMove)
-            window.addEventListener('mouseup', this.doUp)
+            window.addEventListener('pointermove', this.doMove)
+            window.addEventListener('pointerup', this.doUp)
         }
 
         this.doMove = (e) => {
@@ -43,8 +43,8 @@ export class Dragger extends Component {
             })
         }
         this.doUp = () => {
-            window.removeEventListener('mousemove', this.doMove)
-            window.removeEventListener('mouseup', this.doUp)
+            window.removeEventListener('pointermove', this.doMove)
+            window.removeEventListener('pointerup', this.doUp)
         }
     }
 
@@ -64,9 +64,11 @@ export class Dragger extends Component {
                     backgroundColor: 'gray',
                     display:'flex',
                     flexDirection:'row',
-                    justifyContent:'space-between'
+                    justifyContent:'space-between',
+                    userSelect:'none',
+                    touchAction:'none',
                 }}
-                onMouseDown={this.doDown}>
+                onPointerDown={this.doDown}>
                 <label>HSL Color</label>
                 <button onClick={()=>this.setState({visible:false})}>x</button>
             </div>
@@ -122,7 +124,7 @@ export class HSLPicker extends Component {
             pressedHue: false,
             pressedSatLit: false
         }
-        this.mouseDown = (e) => {
+        this.down = (e) => {
             const pt = calcPoint(e)
             if (this.insideRing(pt)) {
                 let hue = this.pointToHue(pt)
@@ -140,7 +142,7 @@ export class HSLPicker extends Component {
                 this.updateColor(this.state.hue,satlit.x,satlit.y)
             }
         }
-        this.mouseMove = (e) => {
+        this.move = (e) => {
             if (this.state.pressedHue) {
                 let hue = this.pointToHue(calcPoint(e))
                 this.setState({hue: hue})
@@ -155,7 +157,7 @@ export class HSLPicker extends Component {
                 this.updateColor(this.state.hue,satlit.x,satlit.y)
             }
         }
-        this.mouseUp = () => {
+        this.up = () => {
             this.setState({pressedHue: false, pressedSatLit: false})
         }
     }
@@ -176,10 +178,10 @@ export class HSLPicker extends Component {
                            borderWidth: 0
                        }}
                        ref={(c) => this.canvas = c}
-                       onMouseDown={this.mouseDown}
-                       onMouseMove={this.mouseMove}
-                       onMouseUp={this.mouseUp}
-        ></canvas>
+                       onPointerDown={this.down}
+                       onPointerMove={this.move}
+                       onPointerUp={this.up}
+        />
     }
 
     redraw() {
