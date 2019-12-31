@@ -56,12 +56,14 @@ const pens = [
 
 const penObserver = new Observer(pens[0])
 // panel for a single Layer. no DnD for now.
-const LayerView = ({layer}) => {
+const LayerView = ({layer,selected,onSelect}) => {
   return <HBox style={{
     border: '1px solid black',
     borderWidth:'1px 0px 0 0px',
-    minWidth:'200px'
+    minWidth:'200px',
+    backgroundColor: selected===layer?'aqua':'white'
   }}>
+    <button onClick={()=>onSelect(layer)}>u</button>
     <label>title</label>
     <button>v</button>
     {/*{layer.thumb.canvas}*/}
@@ -121,10 +123,36 @@ const doc = {
         canvas:null,
       }
     },
+    {
+      type:'layer',
+      width:500,
+      height:500,
+      title:'middle layer',
+      visible:true,
+      canvas: null,
+      thumb:{
+        width:64,
+        height:64,
+        canvas:null,
+      }
+    },
+    {
+      type:'layer',
+      width:500,
+      height:500,
+      title:'bottom layer',
+      visible:true,
+      canvas: null,
+      thumb:{
+        width:64,
+        height:64,
+        canvas:null,
+      }
+    }
   ]
 }
 
-function setupDoc(doc) {
+function setupLayer(layer) {
   const can = document.createElement('canvas')
   const w = 500
   const h = 500
@@ -133,17 +161,22 @@ function setupDoc(doc) {
   can.height = h
 
   const c = can.getContext('2d')
-  c.fillStyle = 'white'
-  c.fillRect(0,0,w,h)
+  c.clearRect(0,0,w,h)
 
-  doc.layers[0].canvas = can
+  layer.canvas = can
 
   const tcan = document.createElement('canvas')
   tcan.width = 64
   tcan.height = 64
   const c2 = tcan.getContext('2d')
   c2.drawImage(can,0,0,64,64)
-  doc.layers[0].thumb.canvas = c2
+  layer.thumb.canvas = c2
+}
+
+function setupDoc(doc) {
+  doc.layers.forEach(layer => {
+    setupLayer(layer)
+  })
 }
 setupDoc(doc)
 
@@ -200,12 +233,13 @@ function App() {
   const [doc,setDoc] = useState(docObserver.get())
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(pens[0])
+  const [layer,setLayer] = useState(doc.layers[0])
   useEffect(()=>{
     const onChange = (val)=> setDoc(val)
     docObserver.addEventListener(onChange)
     return ()=> docObserver.removeEventListener(onChange)
   })
-  const layers = doc.layers.map((layer,i) => <LayerView key={i} layer={layer} doc={doc}/>)
+  const layers = doc.layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
   const layerWrapper = <VBox style={{
     width:'200px',
     border:'0px solid red'
@@ -231,7 +265,7 @@ function App() {
       <label>{doc.title}</label>
       <HBox grow>
         <RecentPens pens={pens} onChange={setPen}/>
-        <PenCanvas doc={doc} pen={pen} color={color} grow/>
+        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>

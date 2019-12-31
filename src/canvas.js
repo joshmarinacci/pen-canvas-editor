@@ -114,7 +114,7 @@ export class PenCanvas extends Component {
     }
 
     currentLayer() {
-        return this.props.doc.layers[0]
+        return this.props.layer
     }
 
     currentPen() {
