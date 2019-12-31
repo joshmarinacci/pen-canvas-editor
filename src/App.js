@@ -266,7 +266,7 @@ function App() {
       <label>{doc.title}</label>
       <HBox grow>
         <RecentPens/>
-        <PenCanvas doc={doc} grow/>
+        <PenCanvas doc={doc} pen={pens[0]} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>

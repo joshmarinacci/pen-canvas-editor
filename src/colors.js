@@ -1,4 +1,5 @@
 import React, {Component, useState} from "react"
+import {Point} from './util.js'
 
 const w = 200
 const h = 200
@@ -7,30 +8,6 @@ function toDeg(th) {
     return th / Math.PI * 180
 }
 
-class Point {
-    constructor(x, y) {
-        this.x = x
-        this.y = y
-    }
-
-    minus(pt) {
-        return new Point(
-            this.x - pt.x,
-            this.y - pt.y
-        )
-    }
-
-    plus(pt) {
-        return new Point(
-            this.x + pt.x,
-            this.y + pt.y
-        )
-    }
-
-    copy() {
-        return new Point(this.x, this.y)
-    }
-}
 
 function calcPoint(e) {
     const rect = e.target.getBoundingClientRect()
