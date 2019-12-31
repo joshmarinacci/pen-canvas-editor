@@ -1,3 +1,5 @@
+import React from 'react'
+
 export class Observer {
     constructor(value) {
         this.cbs = []
@@ -48,4 +50,34 @@ export class Point {
         let dy = this.y - pt.y
         return Math.sqrt(dx*dx + dy*dy)
     }
+}
+
+
+export const HBox = (props) => {
+    const {style, ...rest} = props
+
+    const styles = {
+        display:'flex',
+        flexDirection:'row',
+        ...style
+    }
+    if(props.grow) styles.flex = '1.0'
+    return <div style={styles}>{props.children}</div>
+}
+export const VBox = (props) => {
+    const {style, ...rest} = props
+    const styles = {
+        display:'flex',
+        flexDirection:'column',
+        ...style
+    }
+    if(props.grow) styles.flex = '1.0'
+    return <div style={styles} {...rest}>{props.children}</div>
+}
+//an hbox with a border
+export const Toolbox = (props) => {
+    const style = {
+        //  border: '1px solid black'
+    }
+    return <HBox  style={style} {...props}/>
 }

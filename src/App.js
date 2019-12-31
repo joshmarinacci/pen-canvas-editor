@@ -2,38 +2,11 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
-import {Observer} from './util.js'
+import {HBox, Observer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
+import {RecentPens} from './pens.js'
 
-const HBox = (props) => {
-  const {style, ...rest} = props
-
-  const styles = {
-    display:'flex',
-    flexDirection:'row',
-    ...style
-  }
-  if(props.grow) styles.flex = '1.0'
-  return <div style={styles}>{props.children}</div>
-}
-const VBox = (props) => {
-  const {style, ...rest} = props
-  const styles = {
-    display:'flex',
-    flexDirection:'column',
-        ...style
-  }
-  if(props.grow) styles.flex = '1.0'
-  return <div style={styles} {...rest}>{props.children}</div>
-}
-//an hbox with a border
-const Toolbox = (props) => {
-  const style = {
-  //  border: '1px solid black'
-  }
-  return <HBox  style={style} {...props}/>
-}
-// a button just showing a color, no text
+// a button just showing a color, no textf
 const ColorButton = ({color, caption}) => {
   const style = {
     backgroundColor:color,
@@ -52,16 +25,36 @@ const RecentColors = () => {
   return <div>some colors</div>
 };
 // the list of customized pens
-const RecentPens = () => {
-  return <VBox style={{
-    minWidth:'100px',
-    border:'1px solid black',
-  }}>some pens</VBox>
-};
-// panel that shows settings for a pen, let you customize them
-const PenEditor = () => {
-  return <div> edit the pen</div>
-};
+const pens = [
+  {
+    type:'pen',
+    title:'marker',
+    opacity:0.5,
+    flow:0.8,
+    color:0xFF0000,
+    radius:10.8, //in pixels
+    blend:'overlay',
+  },
+  {
+    type:'pen',
+    title:'pencil',
+    opacity: 0.3,
+    flow: 1.0,
+    color: 0x000000,
+    radius:1, //in pixels
+  },
+  {
+    type:'pen',
+    title:'eraser',
+    opacity: 1.0,
+    flow: 1.0,
+    color: 0x000000,
+    radius: 10,
+    blend:'erase',
+  }
+]
+
+const penObserver = new Observer(pens[0])
 // panel for a single Layer. no DnD for now.
 const LayerView = ({layer}) => {
   return <HBox style={{
@@ -140,10 +133,8 @@ function setupDoc(doc) {
   can.height = h
 
   const c = can.getContext('2d')
-  c.fillStyle = 'red'
-  c.fillRect(0,0,w,h)
   c.fillStyle = 'white'
-  c.fillRect(w/4,h/4,w/2,h/2)
+  c.fillRect(0,0,w,h)
 
   doc.layers[0].canvas = can
 
@@ -156,34 +147,6 @@ function setupDoc(doc) {
 }
 setupDoc(doc)
 
-const pens = [
-  {
-    type:'pen',
-    title:'marker',
-    opacity:0.5,
-    flow:0.8,
-    color:0xFF0000,
-    radius:10.8, //in pixels
-    blend:'overlay',
-  },
-  {
-    type:'pen',
-    title:'pencil',
-    opacity: 0.3,
-    flow: 1.0,
-    color: 0x000000,
-    radius:1, //in pixels
-  },
-  {
-    type:'pen',
-    title:'eraser',
-    opacity: 1.0,
-    flow: 1.0,
-    color: 0x000000,
-    radius: 10,
-    blend:'erase',
-  }
-]
 
 //let ListView; // a vbox w/ scrolling and a toolbar of buttons to add
 //let DraggablePanel; // small window in the dialog layer that you can drag around
@@ -235,7 +198,8 @@ function showPicker() {
 
 function App() {
   const [doc,setDoc] = useState(docObserver.get())
-  const [color,setColor] = useState({hue:0, sat:1.0, lit:0.5})
+  const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
+  const [pen,setPen] = useState(pens[0])
   useEffect(()=>{
     const onChange = (val)=> setDoc(val)
     docObserver.addEventListener(onChange)
@@ -266,8 +230,8 @@ function App() {
       </Toolbox>
       <label>{doc.title}</label>
       <HBox grow>
-        <RecentPens/>
-        <PenCanvas doc={doc} pen={pens[0]} color={color} grow/>
+        <RecentPens pens={pens} onChange={setPen}/>
+        <PenCanvas doc={doc} pen={pen} color={color} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>
