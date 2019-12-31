@@ -23,23 +23,42 @@ export class PenCanvas extends Component {
             if(e.pointerType === 'touch') return
             const pt = getPoint(e)
             this.pressed = true
-            this.plotPoint(pt.x,pt.y)
-            this.prev = pt
+            this.lastPoint = pt
             this.redraw()
         }
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
             if(!this.pressed) return
-            const pt = getPoint(e)
-            let dist = this.prev.dist(pt)
-            let steps = Math.floor(dist)
-            let dx = (pt.x-this.prev.x)/steps
-            let dy = (pt.y-this.prev.y)/steps
-            for(let i=0; i<steps; i++) {
-                this.plotPoint(this.prev.x + i*dx, this.prev.y + i*dy)
+            const currentPoint = getPoint(e)
+
+            function angleBetween(point1, point2) {
+                return Math.atan2(point2.x - point1.x, point2.y - point1.y);
             }
+
+
+            let dist = this.lastPoint.dist(currentPoint)
+            let radius = this.currentPen().radius
+            let gap = radius/3
+            let angle = angleBetween(this.lastPoint, currentPoint);
+            let x = 0
+            let y = 0
+            const can = this.currentLayer().canvas
+            const c = can.getContext('2d')
+
+            for (let i = 0; i < dist; i += gap) {
+                x = this.lastPoint.x + (Math.sin(angle) * i);
+                y = this.lastPoint.y + (Math.cos(angle) * i);
+
+                let grad = c.createRadialGradient(x, y, radius / 2, x, y, radius);
+                grad.addColorStop(0.0, this.currentFill(1.0));
+                grad.addColorStop(0.5, this.currentFill(0.5));
+                grad.addColorStop(1.0, this.currentFill(0.0));
+
+                c.fillStyle = grad;
+                c.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+            }
+            this.lastPoint = currentPoint
             this.redraw()
-            this.prev = pt
         }
         this.pointerUp = (e) => {
             if(e.pointerType === 'touch') return
@@ -96,8 +115,9 @@ export class PenCanvas extends Component {
         return this.props.pen
     }
 
-    currentFill() {
+    currentFill(a) {
         const color = this.props.color
+        if(typeof a !== 'undefined') return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${a})`
         return `hsl(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
     }
 
