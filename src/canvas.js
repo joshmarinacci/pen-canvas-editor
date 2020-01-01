@@ -19,6 +19,7 @@ export class PenCanvas extends Component {
         this.pressed = false
         this.prev = null
         this.pointerDown = (e) => {
+//            console.log("down",e.pointerType, e.pointerId,e.clientX,e.clientY)
             if(e.pointerType === 'touch') return
             this.canvas.style.cursor = 'none'
             const pt = this.getPoint(e)
@@ -69,8 +70,9 @@ export class PenCanvas extends Component {
             this.redraw()
         }
         this.pointerUp = (e) => {
+//            console.log("up",e.pointerType, e.pointerId,e.clientX,e.clientY)
             this.canvas.style.cursor = 'auto'
-            if(e.pointerType === 'touch') return
+            // if(e.pointerType === 'touch') return
             this.pressed = false
         }
     }
