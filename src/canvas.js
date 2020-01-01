@@ -61,7 +61,7 @@ export class PenCanvas extends Component {
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
                 if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
-                c.drawImage(can2,x,y,radius*2,radius*2)
+                c.drawImage(can2,x-radius,y-radius,radius*2,radius*2)
             }
             c.restore()
             this.lastPoint = currentPoint
