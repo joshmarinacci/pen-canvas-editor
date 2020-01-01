@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Point} from './util.js'
 import {toDeg} from "./util";
 
+const HIDPI_FACTOR = 0.5
 
 export class PenCanvas extends Component {
     getPoint(e) {
@@ -10,7 +11,7 @@ export class PenCanvas extends Component {
             e.clientX - rect.left,
             e.clientY - rect.top
         )
-        const scale = Math.pow(2,this.props.zoom)
+        const scale = Math.pow(2,this.props.zoom)*HIDPI_FACTOR
         pt = pt.div(scale)
         return pt
     }
@@ -108,13 +109,21 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
-        if(this.canvas.width !== this.props.doc.width)    this.canvas.width = this.props.doc.width
-        if(this.canvas.height !== this.props.doc.height)  this.canvas.height = this.props.doc.height
         const scale = Math.pow(2,this.props.zoom)
+        const cw = this.props.doc.width*scale
+        const ch = this.props.doc.height*scale
+        if(this.canvas.width !== cw)    {
+            this.canvas.width = cw
+            this.canvas.style.width = cw*HIDPI_FACTOR +'px'
+        }
+        if(this.canvas.height !== ch) {
+            this.canvas.height = ch
+            this.canvas.style.height = ch*HIDPI_FACTOR +'px'
+        }
         const c = this.canvas.getContext('2d')
         c.save()
         c.scale(scale,scale)
-        c.fillStyle = '#ddd'
+        c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
         this.props.doc.layers.forEach(layer => c.drawImage(layer.canvas,0,0))
         c.restore()
