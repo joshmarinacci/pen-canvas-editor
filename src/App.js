@@ -41,11 +41,20 @@ const RecentColors = ({colors, color, onSelect}) => {
 const pens = [
   {
     type:'pen',
+    title:'giant',
+    opacity:0.5,
+    flow:0.8,
+    color:0xFF0000,
+    radius:50, //in pixels
+    blend:'overlay',
+  },
+  {
+    type:'pen',
     title:'fat',
     opacity:0.5,
     flow:0.8,
     color:0xFF0000,
-    radius:10.8, //in pixels
+    radius:10, //in pixels
     blend:'overlay',
   },
   {
@@ -54,7 +63,7 @@ const pens = [
     opacity:0.5,
     flow:0.8,
     color:0xFF0000,
-    radius:5.6, //in pixels
+    radius:5, //in pixels
     blend:'overlay',
   },
   {

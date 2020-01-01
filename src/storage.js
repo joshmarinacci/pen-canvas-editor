@@ -41,6 +41,7 @@ export class Storage {
                     title: layer.title,
                     width: layer.width,
                     height: layer.height,
+                    visible: layer.visible,
                 }
                 const canvas = document.createElement('canvas')
                 canvas.width = layer.width

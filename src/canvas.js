@@ -93,9 +93,6 @@ export class PenCanvas extends Component {
             overflow:'auto'
         }}>
            <canvas ref={(c)=>this.canvas=c}
-                   style={{
-                       border:'5px solid black',
-                   }}
                    width={500}
                    height={500}
                    onPointerDown={this.pointerDown}
