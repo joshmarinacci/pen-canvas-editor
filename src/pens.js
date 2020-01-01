@@ -7,7 +7,7 @@ const PenEditor = () => {
 };
 
 export const RecentPens = ({pens, selected, onSelect, onChange}) => {
-    return <VBox style={{
+    return <VBox className='left-column second-row' style={{
         minWidth:'100px',
         border:'1px solid black',
     }}>{pens.map((pen, i) => {

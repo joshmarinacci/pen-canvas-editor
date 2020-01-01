@@ -86,13 +86,13 @@ export class PenCanvas extends Component {
     }
 
     render() {
-        return <div style={{
+        return <div className="center-row center-column" style={{
             flex: '1.0',
-            border: '1px solid black',
+            overflow:'auto'
         }}>
            <canvas ref={(c)=>this.canvas=c}
                    style={{
-                       border:'1px solid black',
+                       border:'5px solid black',
                    }}
                    width={500}
                    height={500}

@@ -81,11 +81,9 @@ export const VBox = (props) => {
     return <div style={styles} {...rest}>{props.children}</div>
 }
 //an hbox with a border
-export const Toolbox = (props) => {
-    const style = {
-        //  border: '1px solid black'
-    }
-    return <HBox  style={style} {...props}/>
+export const Toolbox = ({className, ...rest}) => {
+    className = "toolbar " + className
+    return <HBox className={className} {...rest}/>
 }
 
 export function toDeg(theta) {

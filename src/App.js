@@ -31,8 +31,6 @@ const RGBPicker = () => {
 // the N most recent colors
 const RecentColors = ({colors, color, onSelect}) => {
   return <div style={{
-    backgroundColor:'#cccccc',
-    border:'1px solid black'
   }}>
     {colors.map((c,i)=>{
       return <ColorButton key={i} color={c} onClick={()=>onSelect(c)} selected={color===c}/>
@@ -297,23 +295,13 @@ function App() {
 
   let layers = doc.layers.slice().reverse()
   layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
-  const layerWrapper = <VBox style={{
-    width:'200px',
-    border:'0px solid red'
-  }}>{layers}
+  const layerWrapper = <VBox className={'right-column second-row'}>{layers}
   <Toolbox>
     <button>add</button>
   </Toolbox>
   </VBox>
-  return <div style={{
-    position:'fixed',
-    width:'100%',
-    height:'100%',
-    display:'flex',
-    flexDirection:'row'
-  }}>
-    <VBox grow>
-      <Toolbox>
+  return <div id={"main"}>
+      <Toolbox className="top-row full-width">
         <button onClick={saveDoc}>save</button>
         <button onClick={showLoadDocDialog}>open</button>
         <button onClick={clearStorage}>clear</button>
@@ -322,17 +310,13 @@ function App() {
         <button onClick={zoomIn}>+</button>
         <button onClick={zoomOut}>-</button>
       </Toolbox>
-      <label>{doc.title}</label>
-      <HBox grow>
-        <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
-        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} grow/>
-        {layerWrapper}
-      </HBox>
-      <Toolbox>
+      <label className="second-row">{doc.title}</label>
+      <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
+      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw}/>
+      {layerWrapper}
+      <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
-        {/*<button onClick={showPicker}>pick</button>*/}
       </Toolbox>
-    </VBox>
     <Dragger><HSLPicker color={color} onChange={setColor}/></Dragger>
     <DialogContainer/>
     <PopupContainer/>
