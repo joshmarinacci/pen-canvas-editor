@@ -125,7 +125,7 @@ const doc = {
       type:'layer',
       width:1024,
       height:768,
-      title:'top layer',
+      title:'bottom layer',
       visible:true,
       canvas: null,
       thumb:{
@@ -151,7 +151,7 @@ const doc = {
       type:'layer',
       width:1024,
       height:768,
-      title:'bottom layer',
+      title:'top layer',
       visible:true,
       canvas: null,
       thumb:{
@@ -270,7 +270,8 @@ function App() {
     return <div style={{flex:1}}></div>
   }
 
-  const layers = doc.layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
+  let layers = doc.layers.slice().reverse()
+  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
   const layerWrapper = <VBox style={{
     width:'200px',
     border:'0px solid red'
