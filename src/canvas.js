@@ -21,6 +21,7 @@ export class PenCanvas extends Component {
         this.prev = null
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
+            this.canvas.style.cursor = 'none'
             const pt = getPoint(e)
             this.pressed = true
             this.lastPoint = pt
@@ -68,6 +69,7 @@ export class PenCanvas extends Component {
             this.redraw()
         }
         this.pointerUp = (e) => {
+            this.canvas.style.cursor = 'auto'
             if(e.pointerType === 'touch') return
             this.pressed = false
         }
