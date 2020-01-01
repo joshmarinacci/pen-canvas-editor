@@ -46,8 +46,8 @@ export class PenCanvas extends Component {
             const c = can.getContext('2d')
 
             let can2 = document.createElement('canvas')
-            can2.width = radius*2
-            can2.height = radius*2
+            can2.width = radius*2+2
+            can2.height = radius*2+2
             let c2 = can2.getContext('2d')
             let grad = c.createRadialGradient(radius, radius, radius / 2, radius, radius, radius);
             grad.addColorStop(0.0, this.currentFill(1.0));
@@ -60,7 +60,7 @@ export class PenCanvas extends Component {
                 c.save()
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
-                c.drawImage(can2,x,y,radius*2,radius*2)
+                c.drawImage(can2,x,y,radius*2+2,radius*2+2)
                 c.restore()
             }
             this.lastPoint = currentPoint

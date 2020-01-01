@@ -161,7 +161,8 @@ function setupLayer(layer) {
   can.height = h
 
   const c = can.getContext('2d')
-  c.clearRect(0,0,w,h)
+  c.fillStyle = 'rgba(255,255,255,0)'
+  c.fillRect(0,0,w,h)
 
   layer.canvas = can
 
