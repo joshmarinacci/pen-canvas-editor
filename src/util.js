@@ -68,7 +68,7 @@ export const HBox = (props) => {
         ...style
     }
     if(props.grow) styles.flex = '1.0'
-    return <div style={styles}>{props.children}</div>
+    return <div style={styles} {...rest}>{props.children}</div>
 }
 export const VBox = (props) => {
     const {style, ...rest} = props

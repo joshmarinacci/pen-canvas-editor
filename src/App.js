@@ -71,7 +71,9 @@ const LayerView = ({layer,selected,onSelect}) => {
     borderWidth:'1px 0px 0 0px',
     minWidth:'200px',
     backgroundColor: selected===layer?'aqua':'white'
-  }}>
+  }}
+               onMouseDown={()=>onSelect(layer)}
+  >
     <button onClick={()=>onSelect(layer)}>u</button>
     <label>{layer.title}</label>
     {/*<button>v</button>*/}
