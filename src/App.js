@@ -28,7 +28,7 @@ const RecentColors = () => {
 const pens = [
   {
     type:'pen',
-    title:'marker',
+    title:'fat',
     opacity:0.5,
     flow:0.8,
     color:0xFF0000,
@@ -37,11 +37,20 @@ const pens = [
   },
   {
     type:'pen',
-    title:'pencil',
+    title:'medium',
+    opacity:0.5,
+    flow:0.8,
+    color:0xFF0000,
+    radius:5.6, //in pixels
+    blend:'overlay',
+  },
+  {
+    type:'pen',
+    title:'thin',
     opacity: 0.3,
     flow: 1.0,
     color: 0x000000,
-    radius:1, //in pixels
+    radius:1.2, //in pixels
   },
   {
     type:'pen',
