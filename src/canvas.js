@@ -87,6 +87,7 @@ export class PenCanvas extends Component {
 
     render() {
         return <div className="center-row center-column" style={{
+            background:'#ddd',
             flex: '1.0',
             overflow:'auto'
         }}>
@@ -113,7 +114,7 @@ export class PenCanvas extends Component {
         const c = this.canvas.getContext('2d')
         c.save()
         c.scale(scale,scale)
-        c.fillStyle = 'magenta'
+        c.fillStyle = '#ddd'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
         this.props.doc.layers.forEach(layer => c.drawImage(layer.canvas,0,0))
         c.restore()
