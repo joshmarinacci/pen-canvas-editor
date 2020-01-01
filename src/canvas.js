@@ -125,7 +125,9 @@ export class PenCanvas extends Component {
         c.scale(scale,scale)
         c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
-        this.props.doc.layers.forEach(layer => c.drawImage(layer.canvas,0,0))
+        this.props.doc.layers.forEach(layer => {
+            if(layer.visible) c.drawImage(layer.canvas,0,0)
+        })
         c.restore()
     }
 

@@ -78,7 +78,7 @@ const pens = [
 
 const penObserver = new Observer(pens[0])
 // panel for a single Layer. no DnD for now.
-const LayerView = ({layer,selected,onSelect}) => {
+const LayerView = ({layer,selected,onSelect, onToggle}) => {
   return <HBox style={{
     border: '1px solid black',
     borderWidth:'1px 0px 0 0px',
@@ -89,7 +89,10 @@ const LayerView = ({layer,selected,onSelect}) => {
   >
     <button onClick={()=>onSelect(layer)}>u</button>
     <label>{layer.title}</label>
-    {/*<button>v</button>*/}
+    <button onClick={()=>{
+      layer.visible = !layer.visible
+      onToggle(layer)
+    }}>v</button>
     {/*{layer.thumb.canvas}*/}
     {/*<label>thumbnail</label>*/}
   </HBox>
@@ -258,6 +261,7 @@ function showPicker() {
 }
 
 function App() {
+  const [counter,setCounter] = useState(0)
   const [doc,setDoc] = useState(docObserver.get())
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(pens[0])
@@ -294,7 +298,7 @@ function App() {
   }
 
   let layers = doc.layers.slice().reverse()
-  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
+  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer} onToggle={()=>setCounter(counter+1)}/>)
   const layerWrapper = <VBox className={'right-column second-row'}>{layers}
   <Toolbox>
     <button>add</button>
