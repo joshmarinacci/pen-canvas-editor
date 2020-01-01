@@ -24,6 +24,7 @@ export class PenCanvas extends Component {
             const pt = this.getPoint(e)
             this.pressed = true
             this.lastPoint = pt
+            if(this.props.onPenDraw) this.props.onPenDraw()
             this.redraw()
         }
         this.pointerMove = (e) => {

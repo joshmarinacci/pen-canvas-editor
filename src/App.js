@@ -5,15 +5,23 @@ import {PenCanvas} from "./canvas.js"
 import {HBox, Observer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
+import {toDeg} from "./util";
 
 // a button just showing a color, no textf
-const ColorButton = ({color, caption}) => {
+const ColorButton = ({color, caption, onClick, selected}) => {
+  if(color.hue) {
+    color =  `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
+  }
   const style = {
     backgroundColor:color,
-    height:'1em',
-    width:'1em',
+    height:'2em',
+    width:'2em',
+    border:'1px solid black'
   }
-  return <button style={style}/>
+  if(selected) {
+    style.border = '3px solid white'
+  }
+  return <button onClick={onClick} style={style}/>
 }
 
 // sliders and hex input, 0-255 & hex output
@@ -21,8 +29,15 @@ const RGBPicker = () => {
   return <div>rgb picker</div>
 }
 // the N most recent colors
-const RecentColors = () => {
-  return <div>some colors</div>
+const RecentColors = ({colors, color, onSelect}) => {
+  return <div style={{
+    backgroundColor:'#cccccc',
+    border:'1px solid black'
+  }}>
+    {colors.map((c,i)=>{
+      return <ColorButton key={i} color={c} onClick={()=>onSelect(c)} selected={color===c}/>
+    })}
+  </div>
 };
 // the list of customized pens
 const pens = [
@@ -250,6 +265,7 @@ function App() {
   const [pen,setPen] = useState(pens[0])
   const [layer,setLayer] = useState(doc.layers[0])
   const [zoom,setZoom] = useState(0)
+  const [colors,setColors] = useState([{hue:0.4,sat:1.0,lit:0.5}])
   useEffect(()=>{
     const onChange = (val)=> {
       setDoc(val)
@@ -258,6 +274,15 @@ function App() {
     docObserver.addEventListener(onChange)
     return ()=> docObserver.removeEventListener(onChange)
   })
+
+  const onPenDraw = () =>{
+    const existing = colors.find(c => c.hue === color.hue && c.sat === color.sat && c.lit === color.lit)
+    if(!existing) {
+      let c2 = colors.slice()
+      c2.push(color)
+      setColors(c2)
+    }
+  }
 
   const zoomIn = ()=>{
     if(zoom < 3) setZoom(zoom+1)
@@ -300,11 +325,11 @@ function App() {
       <label>{doc.title}</label>
       <HBox grow>
         <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
-        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} grow/>
+        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>
-        <RecentColors/>
+        <RecentColors colors={colors} onSelect={setColor} color={color}/>
         {/*<button onClick={showPicker}>pick</button>*/}
       </Toolbox>
     </VBox>
