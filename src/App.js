@@ -235,7 +235,10 @@ function App() {
   const [pen,setPen] = useState(pens[0])
   const [layer,setLayer] = useState(doc.layers[0])
   useEffect(()=>{
-    const onChange = (val)=> setDoc(val)
+    const onChange = (val)=> {
+      setDoc(val)
+      setLayer(val.layers[0])
+    }
     docObserver.addEventListener(onChange)
     return ()=> docObserver.removeEventListener(onChange)
   })

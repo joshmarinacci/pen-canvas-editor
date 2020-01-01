@@ -34,34 +34,36 @@ export class Storage {
 
     //expands the layer data into actual canvas objects
     JSONToDoc(json) {
-        return new Promise((res, rej) => {
-            console.log("processing json", json)
-            const doc = {
-                title: json.title + "better",
-                width: json.width,
-                height: json.height,
-                layers: []
-            }
-            doc.layers = json.layers.map(layer => {
+        function layerToCanvas(layer) {
+            return new Promise((res,rej) =>{
+                let newLayer = {
+                    type: layer.type,
+                    title: layer.title,
+                    width: layer.width,
+                    height: layer.height,
+                }
                 const canvas = document.createElement('canvas')
                 canvas.width = layer.width
                 canvas.height = layer.height
                 const img = new Image(layer.width, layer.height)
                 img.onload = () => {
-                    console.log("restored canvas", canvas)
                     canvas.getContext('2d').drawImage(img, 0, 0)
-                    res(doc)
+                    newLayer.canvas = canvas
+                    res(newLayer)
                 }
                 img.src = layer.data
-                return {
-                    type: layer.type,
-                    title: layer.title,
-                    width: layer.width,
-                    height: layer.height,
-                    //no data
-                    canvas: canvas
-                }
             })
+        }
+
+        const doc = {
+            title: json.title + "better",
+            width: json.width,
+            height: json.height,
+            layers: []
+        }
+        return Promise.all(json.layers.map(layer => layerToCanvas(layer))).then(layers=>{
+            doc.layers = layers
+            return doc
         })
     }
 
