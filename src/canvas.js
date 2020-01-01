@@ -46,8 +46,8 @@ export class PenCanvas extends Component {
             const c = can.getContext('2d')
 
             let can2 = document.createElement('canvas')
-            can2.width = radius*2+2
-            can2.height = radius*2+2
+            can2.width = radius*2
+            can2.height = radius*2
             let c2 = can2.getContext('2d')
             let grad = c.createRadialGradient(radius, radius, radius / 2, radius, radius, radius);
             grad.addColorStop(0.0, this.currentFill(1.0));
@@ -56,13 +56,16 @@ export class PenCanvas extends Component {
             c2.fillStyle = grad
             c2.fillRect(0,0,radius*2,radius*2)
 
+            c.save()
+            if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "copy"
             for (let i = 0; i < dist; i += gap) {
                 c.save()
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
-                c.drawImage(can2,x,y,radius*2+2,radius*2+2)
+                c.drawImage(can2,x,y,radius*2,radius*2)
                 c.restore()
             }
+            c.restore()
             this.lastPoint = currentPoint
             this.redraw()
         }
@@ -123,8 +126,10 @@ export class PenCanvas extends Component {
 
     currentFill(a) {
         const color = this.props.color
-        if(typeof a !== 'undefined') return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${a})`
-        return `hsl(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
+        let alpha = 1.0
+        if(typeof a !== 'undefined') alpha = a;
+        if(this.currentPen().blend === 'erase') return `rgba(255,255,255,${alpha})`
+        return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${alpha})`
     }
 
 }
