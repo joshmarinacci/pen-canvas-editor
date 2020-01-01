@@ -97,6 +97,9 @@ export class PenCanvas extends Component {
                    onPointerDown={this.pointerDown}
                    onPointerMove={this.pointerMove}
                    onPointerUp={this.pointerUp}
+                   onPointerCancel={()=> this.pressed = false}
+                   onPointerLeave={()=> this.pressed = false  }
+                   onPointerOut={()=> this.pressed = false}
            />
         </div>
     }
