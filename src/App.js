@@ -161,8 +161,11 @@ function setupLayer(layer) {
   can.height = h
 
   const c = can.getContext('2d')
+  c.save()
   c.fillStyle = 'rgba(255,255,255,0)'
+  c.globalCompositeOperation = 'copy'
   c.fillRect(0,0,w,h)
+  c.restore()
 
   layer.canvas = can
 
@@ -268,7 +271,7 @@ function App() {
       </Toolbox>
       <label>{doc.title}</label>
       <HBox grow>
-        <RecentPens pens={pens} onChange={setPen}/>
+        <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
         <PenCanvas doc={doc} pen={pen} color={color} layer={layer} grow/>
         {layerWrapper}
       </HBox>

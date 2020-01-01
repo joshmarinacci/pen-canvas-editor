@@ -57,13 +57,11 @@ export class PenCanvas extends Component {
             c2.fillRect(0,0,radius*2,radius*2)
 
             c.save()
-            if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "copy"
             for (let i = 0; i < dist; i += gap) {
-                c.save()
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
+                if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
                 c.drawImage(can2,x,y,radius*2,radius*2)
-                c.restore()
             }
             c.restore()
             this.lastPoint = currentPoint
@@ -110,8 +108,10 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
+        const c = this.canvas.getContext('2d')
+        c.fillStyle = 'white'
+        c.fillRect(0,0,500,500)
         this.props.doc.layers.forEach(layer => {
-            const c = this.canvas.getContext('2d')
             c.drawImage(layer.canvas,0,0)
         })
     }

@@ -13,14 +13,18 @@ const PenEditor = () => {
     return <div> edit the pen</div>
 };
 
-export const RecentPens = ({pens, onChange}) => {
+export const RecentPens = ({pens, selected, onSelect, onChange}) => {
     return <VBox style={{
         minWidth:'100px',
         border:'1px solid black',
     }}>{pens.map((pen, i) => {
         return <button
+            style={{
+                backgroundColor:pen===selected?'aqua':'white',
+                border:'1px solid black',
+            }}
             key={i}
-            onClick={()=>onChange(pen)}
+            onClick={()=>onSelect(pen)}
         >{pen.title} {pen.radius}</button>
     })
     }
