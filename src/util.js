@@ -50,6 +50,12 @@ export class Point {
         let dy = this.y - pt.y
         return Math.sqrt(dx*dx + dy*dy)
     }
+    div(val) {
+        return new Point(
+            this.x/val,
+            this.y/val
+        )
+    }
 }
 
 
@@ -80,4 +86,8 @@ export const Toolbox = (props) => {
         //  border: '1px solid black'
     }
     return <HBox  style={style} {...props}/>
+}
+
+export function toDeg(theta) {
+    return theta / Math.PI * 180
 }

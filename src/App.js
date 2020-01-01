@@ -107,13 +107,13 @@ const PopupContainer = ({}) => {
 
 const doc = {
   title:"my first doc",
-  width:500,
-  height:500,
+  width:1024,
+  height:768,
   layers: [
     {
       type:'layer',
-      width:500,
-      height:500,
+      width:1024,
+      height:768,
       title:'top layer',
       visible:true,
       canvas: null,
@@ -125,8 +125,8 @@ const doc = {
     },
     {
       type:'layer',
-      width:500,
-      height:500,
+      width:1024,
+      height:768,
       title:'middle layer',
       visible:true,
       canvas: null,
@@ -138,8 +138,8 @@ const doc = {
     },
     {
       type:'layer',
-      width:500,
-      height:500,
+      width:1024,
+      height:768,
       title:'bottom layer',
       visible:true,
       canvas: null,
@@ -154,8 +154,8 @@ const doc = {
 
 function setupLayer(layer) {
   const can = document.createElement('canvas')
-  const w = 500
-  const h = 500
+  const w = layer.width
+  const h = layer.height
 
   can.width = w
   can.height = h
@@ -238,6 +238,7 @@ function App() {
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(pens[0])
   const [layer,setLayer] = useState(doc.layers[0])
+  const [zoom,setZoom] = useState(0)
   useEffect(()=>{
     const onChange = (val)=> {
       setDoc(val)
@@ -246,6 +247,18 @@ function App() {
     docObserver.addEventListener(onChange)
     return ()=> docObserver.removeEventListener(onChange)
   })
+
+  const zoomIn = ()=>{
+    if(zoom < 3) setZoom(zoom+1)
+  }
+  const zoomOut = ()=>{
+    if(zoom > -3) setZoom(zoom-1)
+  }
+
+  const Spacer = () => {
+    return <div style={{flex:1}}></div>
+  }
+
   const layers = doc.layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer}/>)
   const layerWrapper = <VBox style={{
     width:'200px',
@@ -268,11 +281,14 @@ function App() {
         <button onClick={showLoadDocDialog}>open</button>
         <button onClick={clearStorage}>clear</button>
         <button onClick={exportPNG}>png</button>
+        <Spacer/>
+        <button onClick={zoomIn}>+</button>
+        <button onClick={zoomOut}>-</button>
       </Toolbox>
       <label>{doc.title}</label>
       <HBox grow>
         <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
-        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} grow/>
+        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} grow/>
         {layerWrapper}
       </HBox>
       <Toolbox>

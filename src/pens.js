@@ -1,13 +1,6 @@
 import React from 'react'
 import {VBox} from './util.js'
 
-export function drawToSurface(c, fill, pen, x,y) {
-    c.fillStyle = fill
-    c.beginPath()
-    c.arc(x,y,pen.radius, 0, Math.PI*2)
-    c.fill()
-}
-
 // panel that shows settings for a pen, let you customize them
 const PenEditor = () => {
     return <div> edit the pen</div>

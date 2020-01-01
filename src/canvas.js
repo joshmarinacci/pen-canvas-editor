@@ -1,20 +1,19 @@
 import React, {Component} from "react";
 import {Point} from './util.js'
-import {drawToSurface} from './pens.js'
+import {toDeg} from "./util";
 
-function getPoint(e) {
-    const rect = e.target.getBoundingClientRect()
-    return new Point(
-        e.clientX - rect.left,
-        e.clientY - rect.top
-    )
-}
-
-function toDeg(hue) {
-    return hue / Math.PI * 180
-}
 
 export class PenCanvas extends Component {
+    getPoint(e) {
+        const rect = e.target.getBoundingClientRect()
+        let pt = new Point(
+            e.clientX - rect.left,
+            e.clientY - rect.top
+        )
+        const scale = Math.pow(2,this.props.zoom)
+        pt = pt.div(scale)
+        return pt
+    }
     constructor(props) {
         super(props)
         this.pressed = false
@@ -22,7 +21,7 @@ export class PenCanvas extends Component {
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
             this.canvas.style.cursor = 'none'
-            const pt = getPoint(e)
+            const pt = this.getPoint(e)
             this.pressed = true
             this.lastPoint = pt
             this.redraw()
@@ -30,7 +29,7 @@ export class PenCanvas extends Component {
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
             if(!this.pressed) return
-            const currentPoint = getPoint(e)
+            const currentPoint = this.getPoint(e)
 
             function angleBetween(point1, point2) {
                 return Math.atan2(point2.x - point1.x, point2.y - point1.y);
@@ -75,13 +74,6 @@ export class PenCanvas extends Component {
         }
     }
 
-    plotPoint(x, y) {
-        const pen = this.currentPen()
-        const can = this.currentLayer().canvas
-        const c = can.getContext('2d')
-        drawToSurface(c,this.currentFill(),pen,x,y)
-    }
-
     componentDidMount() {
         this.redraw()
     }
@@ -89,7 +81,6 @@ export class PenCanvas extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.redraw()
     }
-
 
     render() {
         return <div style={{
@@ -110,12 +101,16 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
+        if(this.canvas.width !== this.props.doc.width)    this.canvas.width = this.props.doc.width
+        if(this.canvas.height !== this.props.doc.height)  this.canvas.height = this.props.doc.height
+        const scale = Math.pow(2,this.props.zoom)
         const c = this.canvas.getContext('2d')
-        c.fillStyle = 'white'
-        c.fillRect(0,0,500,500)
-        this.props.doc.layers.forEach(layer => {
-            c.drawImage(layer.canvas,0,0)
-        })
+        c.save()
+        c.scale(scale,scale)
+        c.fillStyle = 'magenta'
+        c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
+        this.props.doc.layers.forEach(layer => c.drawImage(layer.canvas,0,0))
+        c.restore()
     }
 
     currentLayer() {
