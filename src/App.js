@@ -64,10 +64,10 @@ const LayerView = ({layer,selected,onSelect}) => {
     backgroundColor: selected===layer?'aqua':'white'
   }}>
     <button onClick={()=>onSelect(layer)}>u</button>
-    <label>title</label>
-    <button>v</button>
+    <label>{layer.title}</label>
+    {/*<button>v</button>*/}
     {/*{layer.thumb.canvas}*/}
-    <label>thumbnail</label>
+    {/*<label>thumbnail</label>*/}
   </HBox>
 }
 
