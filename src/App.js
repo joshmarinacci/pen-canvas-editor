@@ -85,7 +85,6 @@ const pens = [
   }
 ]
 
-const penObserver = new Observer(pens[0])
 // panel for a single Layer. no DnD for now.
 const LayerView = ({layer,selected,onSelect, onToggle}) => {
   return <HBox style={{
