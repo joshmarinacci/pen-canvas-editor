@@ -1,25 +1,59 @@
-import React from 'react'
-import {VBox} from './util.js'
+import React, {useEffect, useRef} from 'react'
+import {toDeg, VBox} from './util.js'
 
 // panel that shows settings for a pen, let you customize them
 const PenEditor = () => {
     return <div> edit the pen</div>
 };
 
-export const RecentPens = ({pens, selected, onSelect, onChange}) => {
-    return <VBox className='left-column second-row' style={{
-        minWidth:'100px',
-        border:'1px solid black',
-    }}>{pens.map((pen, i) => {
-        return <button
-            style={{
-                backgroundColor:pen===selected?'aqua':'white',
-                border:'1px solid black',
-            }}
-            key={i}
-            onClick={()=>onSelect(pen)}
-        >{pen.title} {pen.radius}</button>
+function currentFill(pen,color,a) {
+    let alpha = 1.0
+    if(typeof a !== 'undefined') alpha = a;
+    if(pen.blend === 'erase') return `rgba(255,255,255,${alpha})`
+    return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${alpha})`
+}
+
+
+export function generateBrush(pen, color) {
+    let radius = pen.radius
+    let can2 = document.createElement('canvas')
+    can2.width = radius*2
+    can2.height = radius*2
+    let c2 = can2.getContext('2d')
+    let grad = c2.createRadialGradient(radius, radius, radius / 2, radius, radius, radius)
+    grad.addColorStop(0.0, currentFill(pen,color,1.0))
+    grad.addColorStop(0.5, currentFill(pen,color,0.5))
+    grad.addColorStop(1.0, currentFill(pen,color,0.0))
+    c2.fillStyle = grad
+    c2.fillRect(0,0,radius*2,radius*2)
+    return can2
+}
+
+export const PenView = ({pen,color, onSelect, selected}) => {
+    const canvas = useRef(null)
+    //whenever a prop changes, this is called to redraw the canvas
+    useEffect(()=>{
+        const cv = canvas.current
+        const c = cv.getContext('2d')
+        let w = 64*2
+        cv.width = w
+        cv.height = w
+        c.fillStyle = 'white'
+        c.fillRect(0,0,w,w)
+        const brush = generateBrush(pen,color)
+        c.drawImage(brush,w/2-pen.radius,w/2-pen.radius)
+        const l = 4
+        c.lineWidth = l
+        c.strokeStyle = (pen === selected) ? '#000' : '#ddd'
+        c.strokeRect(l/2,l/2,w-l,w-l)
     })
-    }
+    return <canvas width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
+
+}
+
+export const RecentPens = ({pens, selected, onSelect, onChange, color}) => {
+    return <VBox className='left-column second-row'>{pens.map((pen, i) => {
+        return <PenView key={i} pen={pen} onSelect={onSelect} color={color} selected={selected}/>
+    })}
     </VBox>
 };

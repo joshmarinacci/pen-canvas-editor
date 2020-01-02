@@ -324,7 +324,7 @@ function App() {
         <button onClick={zoomOut}>-</button>
       </Toolbox>
       <label className="second-row">{doc.title}</label>
-      <RecentPens pens={pens} selected={pen} onSelect={setPen}/>
+      <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw}/>
       {layerWrapper}
       <Toolbox className="bottom-row full-width">
