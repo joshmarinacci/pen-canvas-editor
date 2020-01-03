@@ -22,7 +22,7 @@ export class Dragger extends Component {
         super(props)
         this.state = {
             dragging: false,
-            pos: new Point(50, 600),
+            pos: new Point(600, 100),
             visible:true,
         }
         let start = null

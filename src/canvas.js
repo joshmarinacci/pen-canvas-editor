@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Point} from './util.js'
-import {toDeg} from "./util";
+import {generateBrush} from './pens.js'
 
 const HIDPI_FACTOR = 0.5
 
@@ -48,16 +48,7 @@ export class PenCanvas extends Component {
             const can = this.currentLayer().canvas
             const c = can.getContext('2d')
 
-            let can2 = document.createElement('canvas')
-            can2.width = radius*2
-            can2.height = radius*2
-            let c2 = can2.getContext('2d')
-            let grad = c.createRadialGradient(radius, radius, radius / 2, radius, radius, radius);
-            grad.addColorStop(0.0, this.currentFill(1.0));
-            grad.addColorStop(0.5, this.currentFill(0.5));
-            grad.addColorStop(1.0, this.currentFill(0.0));
-            c2.fillStyle = grad
-            c2.fillRect(0,0,radius*2,radius*2)
+            let can2 = generateBrush(this.currentPen(),this.props.color)
 
             c.save()
             for (let i = 0; i < dist; i += gap) {
@@ -135,13 +126,4 @@ export class PenCanvas extends Component {
     currentPen() {
         return this.props.pen
     }
-
-    currentFill(a) {
-        const color = this.props.color
-        let alpha = 1.0
-        if(typeof a !== 'undefined') alpha = a;
-        if(this.currentPen().blend === 'erase') return `rgba(255,255,255,${alpha})`
-        return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${alpha})`
-    }
-
 }
