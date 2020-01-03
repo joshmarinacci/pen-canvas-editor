@@ -6,6 +6,7 @@ import {HBox, Observer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {toDeg} from "./util";
+import {Save, Download, ZoomIn, ZoomOut, Eye, EyeOff, PlusSquare} from "react-feather"
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
@@ -85,6 +86,13 @@ const pens = [
   }
 ]
 
+function layerVisible(layer) {
+  if(layer.visible) {
+    return <Eye size={16}/>
+  } else {
+    return <EyeOff size={16}/>
+  }
+}
 const penObserver = new Observer(pens[0])
 // panel for a single Layer. no DnD for now.
 const LayerView = ({layer,selected,onSelect, onToggle}) => {
@@ -96,14 +104,12 @@ const LayerView = ({layer,selected,onSelect, onToggle}) => {
   }}
                onMouseDown={()=>onSelect(layer)}
   >
-    <button onClick={()=>onSelect(layer)}>u</button>
-    <label>{layer.title}</label>
-    <button onClick={()=>{
+    <button className={"borderless"} style={{backgroundColor:'white'}} onClick={()=>{
       layer.visible = !layer.visible
       onToggle(layer)
-    }}>v</button>
+    }}>{layerVisible(layer)}</button>
+    <label>{layer.title}</label>
     {/*{layer.thumb.canvas}*/}
-    {/*<label>thumbnail</label>*/}
   </HBox>
 }
 
@@ -310,18 +316,18 @@ function App() {
   layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer} onToggle={()=>setCounter(counter+1)}/>)
   const layerWrapper = <VBox className={'right-column second-row'}>{layers}
   <Toolbox>
-    <button>add</button>
+    <button className="borderless"><PlusSquare size={20}/></button>
   </Toolbox>
   </VBox>
   return <div id={"main"}>
       <Toolbox className="top-row full-width">
-        <button onClick={saveDoc}>save</button>
+        <button onClick={saveDoc} ><Save/></button>
         <button onClick={showLoadDocDialog}>open</button>
         <button onClick={clearStorage}>clear</button>
-        <button onClick={exportPNG}>png</button>
+        <button onClick={exportPNG}><Download/></button>
         <Spacer/>
-        <button onClick={zoomIn}>+</button>
-        <button onClick={zoomOut}>-</button>
+        <button onClick={zoomIn}><ZoomIn/></button>
+        <button onClick={zoomOut}><ZoomOut/></button>
       </Toolbox>
       <label className="second-row">{doc.title}</label>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>

@@ -46,3 +46,14 @@ canvas {
 .toolbar {
   background: #ddd;
 }
+
+
+.borderless {
+  border-width: 0;
+}
+
+
+.toolbar button {
+  border: 1px solid #000;
+  background: #ddd;
+}
