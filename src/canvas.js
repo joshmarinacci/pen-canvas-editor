@@ -40,7 +40,9 @@ export class PenCanvas extends Component {
 
 
             let dist = this.lastPoint.dist(currentPoint)
-            let radius = this.currentPen().radius
+            let pen = this.currentPen()
+            if((e.buttons & 32)>>5 >0) pen = this.currentEraserPen()
+            let radius = pen.radius
             let gap = radius/3
             let angle = angleBetween(this.lastPoint, currentPoint);
             let x = 0
@@ -48,7 +50,7 @@ export class PenCanvas extends Component {
             const can = this.currentLayer().canvas
             const c = can.getContext('2d')
 
-            let can2 = generateBrush(this.currentPen(),this.props.color)
+            let can2 = generateBrush(pen,this.props.color)
 
             c.save()
             for (let i = 0; i < dist; i += gap) {
@@ -125,5 +127,8 @@ export class PenCanvas extends Component {
 
     currentPen() {
         return this.props.pen
+    }
+    currentEraserPen() {
+        return this.props.eraser
     }
 }
