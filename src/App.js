@@ -147,15 +147,18 @@ const PopupContainer = ({}) => {
   return <div style={style}></div>
 }
 
+const DW = 1024
+const DH = 1024
+
 const doc = {
   title:"my first doc",
-  width:1024,
-  height:768,
+  width:DW,
+  height:DH,
   layers: [
     {
       type:'layer',
-      width:1024,
-      height:768,
+      width:DW,
+      height:DH,
       title:'bottom layer',
       visible:true,
       canvas: null,
@@ -167,8 +170,8 @@ const doc = {
     },
     {
       type:'layer',
-      width:1024,
-      height:768,
+      width:DW,
+      height:DH,
       title:'middle layer',
       visible:true,
       canvas: null,
@@ -180,8 +183,8 @@ const doc = {
     },
     {
       type:'layer',
-      width:1024,
-      height:768,
+      width:DW,
+      height:DH,
       title:'top layer',
       visible:true,
       canvas: null,
