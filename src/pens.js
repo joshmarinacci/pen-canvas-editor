@@ -36,16 +36,17 @@ export const PenView = ({pen,color, onSelect, selected}) => {
         const cv = canvas.current
         const c = cv.getContext('2d')
         let w = 64*2
+        let h = 64*2
         cv.width = w
-        cv.height = w
+        cv.height = h
         c.fillStyle = 'white'
-        c.fillRect(0,0,w,w)
+        c.fillRect(0,0,w,h)
         const brush = generateBrush(pen,color)
-        c.drawImage(brush,w/2-pen.radius,w/2-pen.radius)
+        c.drawImage(brush,w/2-pen.radius,h/2-pen.radius)
         const l = 4
         c.lineWidth = l
         c.strokeStyle = (pen === selected) ? '#000' : '#ddd'
-        c.strokeRect(l/2,l/2,w-l,w-l)
+        c.strokeRect(l/2,l/2,w-l,h-l)
     })
     return <canvas width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
 

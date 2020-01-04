@@ -234,20 +234,18 @@ export class HSLPicker extends Component {
     }
 
     drawIndicator(c, x, y) {
+
+        function drawCircle(color,r) {
+            c.strokeStyle = color
+            c.beginPath()
+            c.arc(x, y, r - 0, 0, Math.PI * 2)
+            c.stroke()
+        }
         const r = 7
         c.save()
-        c.strokeStyle = 'black'
-        c.beginPath()
-        c.arc(x, y, r - 0, 0, Math.PI * 2)
-        c.stroke()
-        c.strokeStyle = 'white'
-        c.beginPath()
-        c.arc(x, y, r - 1, 0, Math.PI * 2)
-        c.stroke()
-        c.strokeStyle = 'black'
-        c.beginPath()
-        c.arc(x, y, r - 2, 0, Math.PI * 2)
-        c.stroke()
+        drawCircle('black',r-0)
+        drawCircle('white',r-1)
+        drawCircle('black',r-2)
         c.restore()
     }
 

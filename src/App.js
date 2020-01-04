@@ -280,6 +280,7 @@ function App() {
   const [doc,setDoc] = useState(docObserver.get())
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(pens[0])
+  const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
   const [layer,setLayer] = useState(doc.layers[0])
   const [zoom,setZoom] = useState(0)
   const [colors,setColors] = useState([{hue:0.4,sat:1.0,lit:0.5}])
@@ -331,7 +332,7 @@ function App() {
       </Toolbox>
       <label className="second-row">{doc.title}</label>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
-      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw}/>
+      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser}/>
       {layerWrapper}
       <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
