@@ -44,7 +44,7 @@ const pens = [
     type:'pen',
     title:'giant',
     opacity:1.0,
-    flow:0.1,
+    flow:0.5,
     color:0xFF0000,
     radius:50, //in pixels
     blend:'overlay',
@@ -53,7 +53,7 @@ const pens = [
     type:'pen',
     title:'fat',
     opacity:1.0,
-    flow:0.3,
+    flow:0.5,
     color:0xFF0000,
     radius:10, //in pixels
     blend:'overlay',
@@ -62,7 +62,7 @@ const pens = [
     type:'pen',
     title:'medium',
     opacity:1.0,
-    flow:0.8,
+    flow:0.5,
     color:0xFF0000,
     radius:5, //in pixels
     blend:'overlay',
@@ -71,7 +71,7 @@ const pens = [
     type:'pen',
     title:'thin',
     opacity: 1.0,
-    flow: 1.0,
+    flow: 0.5,
     color: 0x000000,
     radius:1.2, //in pixels
   },
@@ -229,18 +229,7 @@ function setupDoc(doc) {
 }
 setupDoc(doc)
 
-
-//let ListView; // a vbox w/ scrolling and a toolbar of buttons to add
-//let DraggablePanel; // small window in the dialog layer that you can drag around
-//let Dialog; // standard dialog container w/ title, body, and action bar
-//let DialogScrim; //scrim to block the background while dialog is visible
-//let Popup; //standard popup container w/
-//let PopupScrim; //scrim to block the background while popup is visible
-//let PenCanvas; //a stack of Canvas objects that you can rotate, zoom, and pan w/ your fingers
-
-
 const storage = new Storage()
-
 const docObserver = new Observer(doc)
 
 const saveDoc = () => {
