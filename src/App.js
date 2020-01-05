@@ -43,8 +43,8 @@ const pens = [
   {
     type:'pen',
     title:'giant',
-    opacity:0.5,
-    flow:0.8,
+    opacity:1.0,
+    flow:0.1,
     color:0xFF0000,
     radius:50, //in pixels
     blend:'overlay',
@@ -52,8 +52,8 @@ const pens = [
   {
     type:'pen',
     title:'fat',
-    opacity:0.5,
-    flow:0.8,
+    opacity:1.0,
+    flow:0.3,
     color:0xFF0000,
     radius:10, //in pixels
     blend:'overlay',
@@ -61,7 +61,7 @@ const pens = [
   {
     type:'pen',
     title:'medium',
-    opacity:0.5,
+    opacity:1.0,
     flow:0.8,
     color:0xFF0000,
     radius:5, //in pixels
@@ -70,7 +70,7 @@ const pens = [
   {
     type:'pen',
     title:'thin',
-    opacity: 0.3,
+    opacity: 1.0,
     flow: 1.0,
     color: 0x000000,
     radius:1.2, //in pixels

@@ -19,14 +19,15 @@ export class PenCanvas extends Component {
         super(props)
         this.pressed = false
         this.prev = null
+        this.drawingLayerVisible = false
         this.pointerDown = (e) => {
-//            console.log("down",e.pointerType, e.pointerId,e.clientX,e.clientY)
             if(e.pointerType === 'touch') return
             this.canvas.style.cursor = 'none'
             const pt = this.getPoint(e)
             this.pressed = true
             this.lastPoint = pt
             if(this.props.onPenDraw) this.props.onPenDraw()
+            this.prepDrawingLayer()
             this.redraw()
         }
         this.pointerMove = (e) => {
@@ -47,26 +48,25 @@ export class PenCanvas extends Component {
             let angle = angleBetween(this.lastPoint, currentPoint);
             let x = 0
             let y = 0
-            const can = this.currentLayer().canvas
+            const can = this.getDrawingLayer()
             const c = can.getContext('2d')
-
-            let can2 = generateBrush(pen,this.props.color)
+            let brush = generateBrush(pen,this.props.color)
 
             c.save()
+            c.globalAlpha = pen.flow
+            c.globalCompositeOperation = 'src-over'
             for (let i = 0; i < dist; i += gap) {
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
-                if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
-                c.drawImage(can2,x-radius,y-radius,radius*2,radius*2)
+                c.drawImage(brush,x-radius,y-radius,radius*2,radius*2)
             }
             c.restore()
             this.lastPoint = currentPoint
             this.redraw()
         }
         this.pointerUp = (e) => {
-//            console.log("up",e.pointerType, e.pointerId,e.clientX,e.clientY)
+            this.mergeDrawingLayer()
             this.canvas.style.cursor = 'auto'
-            // if(e.pointerType === 'touch') return
             this.pressed = false
         }
     }
@@ -115,9 +115,7 @@ export class PenCanvas extends Component {
         c.scale(scale,scale)
         c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
-        this.props.doc.layers.forEach(layer => {
-            if(layer.visible) c.drawImage(layer.canvas,0,0)
-        })
+        this.props.doc.layers.forEach(layer => this.drawLayer(c,layer))
         c.restore()
     }
 
@@ -130,5 +128,67 @@ export class PenCanvas extends Component {
     }
     currentEraserPen() {
         return this.props.eraser
+    }
+
+    prepDrawingLayer() {
+        this.clearCanvas(this.getDrawingLayer())
+        this.clearCanvas(this.getScratchLayer())
+        this.drawingLayerVisible = true
+    }
+
+    getDrawingLayer() {
+        if(!this.drawingLayer) {
+            this.drawingLayer = document.createElement('canvas')
+            this.drawingLayer.width = 1024
+            this.drawingLayer.height = 1024
+        }
+        return this.drawingLayer
+    }
+
+    drawLayer(c, layer) {
+        if(!layer.visible) return
+        if(layer === this.currentLayer() && this.drawingLayerVisible) {
+            this.clearCanvas(this.getScratchLayer())
+            const c2 = this.getScratchLayer().getContext('2d')
+            c2.save()
+            c2.drawImage(layer.canvas,0,0)
+            if(this.currentPen().blend === 'erase') c2.globalCompositeOperation = "destination-out"
+            c2.drawImage(this.getDrawingLayer(),0,0)
+            c2.restore()
+            c.globalAlpha = this.currentPen().opacity
+            c.drawImage(this.getScratchLayer(),0,0)
+            return
+        }
+        c.drawImage(layer.canvas,0,0)
+    }
+
+    mergeDrawingLayer() {
+        const c = this.currentLayer().canvas.getContext('2d')
+        c.save()
+        c.globalAlpha = this.currentPen().opacity
+        if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
+        c.drawImage(this.drawingLayer,0,0)
+        c.restore()
+        this.drawingLayerVisible = false
+        this.redraw()
+    }
+
+
+    clearCanvas(canvas) {
+        const c = canvas.getContext('2d')
+        c.save()
+        c.fillStyle = 'rgba(255,255,255,0)'
+        c.globalCompositeOperation = 'copy'
+        c.fillRect(0,0,1024,1024)
+        c.restore()
+    }
+
+    getScratchLayer() {
+        if(!this.scratchLayer) {
+            this.scratchLayer = document.createElement('canvas')
+            this.scratchLayer.width = 1024
+            this.scratchLayer.height = 1024
+        }
+        return this.scratchLayer
     }
 }
