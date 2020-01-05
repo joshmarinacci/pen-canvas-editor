@@ -89,3 +89,30 @@ export const Toolbox = ({className, ...rest}) => {
 export function toDeg(theta) {
     return theta / Math.PI * 180
 }
+
+
+export function clearCanvas(canvas) {
+    const c = canvas.getContext('2d')
+    c.save()
+    c.fillStyle = 'rgba(255,255,255,0)'
+    c.globalCompositeOperation = 'copy'
+    c.fillRect(0,0,1024,1024)
+    c.restore()
+}
+
+
+export function cloneCanvas(canvas) {
+    const can2 = document.createElement('canvas')
+    can2.width = canvas.width
+    can2.height = canvas.height
+    const ctx = can2.getContext('2d')
+    ctx.drawImage(canvas,0,0)
+    return can2
+}
+
+export function copyToCanvas(src, dst) {
+    clearCanvas(dst)
+    const ctx = dst.getContext('2d')
+    ctx.drawImage(src,0,0)
+}
+

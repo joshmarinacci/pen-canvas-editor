@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Point} from './util.js'
 import {generateBrush} from './pens.js'
+import {clearCanvas, cloneCanvas} from "./util";
 
 const HIDPI_FACTOR = 0.5
 
@@ -131,8 +132,8 @@ export class PenCanvas extends Component {
     }
 
     prepDrawingLayer() {
-        this.clearCanvas(this.getDrawingLayer())
-        this.clearCanvas(this.getScratchLayer())
+        clearCanvas(this.getDrawingLayer())
+        clearCanvas(this.getScratchLayer())
         this.drawingLayerVisible = true
     }
 
@@ -148,7 +149,7 @@ export class PenCanvas extends Component {
     drawLayer(c, layer) {
         if(!layer.visible) return
         if(layer === this.currentLayer() && this.drawingLayerVisible) {
-            this.clearCanvas(this.getScratchLayer())
+            clearCanvas(this.getScratchLayer())
             const c2 = this.getScratchLayer().getContext('2d')
             c2.save()
             c2.drawImage(layer.canvas,0,0)
@@ -163,25 +164,19 @@ export class PenCanvas extends Component {
     }
 
     mergeDrawingLayer() {
+        const before = cloneCanvas(this.currentLayer().canvas)
         const c = this.currentLayer().canvas.getContext('2d')
         c.save()
         c.globalAlpha = this.currentPen().opacity
         if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
         c.drawImage(this.drawingLayer,0,0)
         c.restore()
+        if(this.props.onDrawDone) this.props.onDrawDone(before)
         this.drawingLayerVisible = false
         this.redraw()
     }
 
 
-    clearCanvas(canvas) {
-        const c = canvas.getContext('2d')
-        c.save()
-        c.fillStyle = 'rgba(255,255,255,0)'
-        c.globalCompositeOperation = 'copy'
-        c.fillRect(0,0,1024,1024)
-        c.restore()
-    }
 
     getScratchLayer() {
         if(!this.scratchLayer) {

@@ -5,7 +5,7 @@ import {PenCanvas} from "./canvas.js"
 import {HBox, Observer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {toDeg} from "./util";
+import {cloneCanvas, copyToCanvas, toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut, Eye, EyeOff, PlusSquare} from "react-feather"
 
 // a button just showing a color, no textf
@@ -278,6 +278,9 @@ function showPicker() {
   dialogObserver.set(<Dragger><HSLPicker/></Dragger>)
 }
 
+let undoBackup = null
+let redoBackup = null
+
 function App() {
   const [counter,setCounter] = useState(0)
   const [doc,setDoc] = useState(docObserver.get())
@@ -316,13 +319,32 @@ function App() {
     return <div style={{flex:1}}></div>
   }
 
+  const redraw = ()=>setCounter(counter+1)
   let layers = doc.layers.slice().reverse()
-  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer} onToggle={()=>setCounter(counter+1)}/>)
+  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer} onToggle={redraw}/>)
   const layerWrapper = <VBox className={'right-column second-row'}>{layers}
   <Toolbox>
     <button className="borderless"><PlusSquare size={20}/></button>
   </Toolbox>
   </VBox>
+
+  const undo = () => {
+    redoBackup = cloneCanvas(layer.canvas)
+    copyToCanvas(undoBackup,layer.canvas)
+    undoBackup = null
+    redraw()
+  }
+  const redo = () => {
+    undoBackup = cloneCanvas(layer.canvas)
+    copyToCanvas(redoBackup,layer.canvas)
+    redoBackup = null
+    redraw()
+  }
+  let onDrawDone = (before)=>{
+    undoBackup = before
+    redoBackup = null
+    redraw()
+  };
   return <div id={"main"}>
       <Toolbox className="top-row full-width">
         <button onClick={saveDoc} ><Save/></button>
@@ -330,12 +352,15 @@ function App() {
         <button onClick={clearStorage}>clear</button>
         <button onClick={exportPNG}><Download/></button>
         <Spacer/>
+        <button onClick={undo} disabled={undoBackup === null}>undo</button>
+        <button onClick={redo} disabled={redoBackup === null}>redo</button>
+        <Spacer/>
         <button onClick={zoomIn}><ZoomIn/></button>
         <button onClick={zoomOut}><ZoomOut/></button>
       </Toolbox>
       <label className="second-row">{doc.title}</label>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
-      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser}/>
+      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
       {layerWrapper}
       <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
