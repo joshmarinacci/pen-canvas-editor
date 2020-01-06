@@ -98,10 +98,10 @@ export class Storage {
             canvas.height = h
             console.log("exporting", w, h)
             const ctx = canvas.getContext('2d')
-            ctx.fillStyle = 'red'
+            ctx.fillStyle = 'white'
             ctx.fillRect(0, 0, w, h)
             doc.layers.forEach(layer => {
-                ctx.drawImage(layer.canvas, 0, 0)
+                if(layer.visible) ctx.drawImage(layer.canvas, 0, 0)
             })
             let url = canvas.toDataURL()
             url = url.replace(/^data:image\/png/, 'data:application/octet-stream')
