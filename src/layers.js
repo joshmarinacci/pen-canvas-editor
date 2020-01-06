@@ -20,7 +20,12 @@ const LayerView = ({layer,selected,onSelect, onToggle}) => {
     }}
                  onMouseDown={()=>onSelect(layer)}
     >
-        <button className={"borderless"} style={{backgroundColor:'white'}} onClick={()=>{
+        <button className={"borderless"} style={{backgroundColor:'transparent'}}
+            onMouseDown={(e)=>{
+                e.preventDefault()
+                e.stopPropagation()
+            }}
+                onClick={()=>{
             layer.visible = !layer.visible
             onToggle(layer)
         }}>{layerVisible(layer)}</button>
@@ -29,8 +34,8 @@ const LayerView = ({layer,selected,onSelect, onToggle}) => {
     </HBox>
 }
 
-export const LayerWrapper = ({layers, doc, selectedLayer, setLayer, redraw}) => {
-    layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={selectedLayer} onSelect={setLayer} onToggle={redraw}/>)
+export const LayerWrapper = ({layers, selectedLayer, setLayer, redraw}) => {
+    layers = layers.map((lay,i) => <LayerView key={i} layer={lay} selected={selectedLayer} onSelect={setLayer} onToggle={redraw}/>)
     return <VBox className={'right-column second-row'}>
         {layers}
         <Toolbox>

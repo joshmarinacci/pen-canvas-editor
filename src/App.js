@@ -253,6 +253,9 @@ function App() {
   const [layer,setLayer] = useState(doc.layers[0])
   const [zoom,setZoom] = useState(0)
   const [colors,setColors] = useState([{hue:0.4,sat:1.0,lit:0.5}])
+
+  let layers = doc.layers.slice().reverse()
+
   useEffect(()=>{
     const onChange = (val)=> {
       setDoc(val)
@@ -278,12 +281,9 @@ function App() {
     if(zoom > -3) setZoom(zoom-1)
   }
 
-  const Spacer = () => {
-    return <div style={{flex:1}}></div>
-  }
+  const Spacer = () => <div style={{flex:1}}/>
 
   const redraw = ()=>setCounter(counter+1)
-  let layers = doc.layers.slice().reverse()
 
   const undo = () => {
     redoBackup = cloneCanvas(layer.canvas)
@@ -318,7 +318,7 @@ function App() {
       <label className="second-row">{doc.title}</label>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
-      <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} doc={doc} selectedLayer={layer}/>
+      <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
       <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
       </Toolbox>
