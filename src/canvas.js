@@ -23,6 +23,7 @@ export class PenCanvas extends Component {
         this.drawingLayerVisible = false
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
+            if(!this.currentLayer().visible) return console.warn("cant draw to a hidden layer")
             this.canvas.style.cursor = 'none'
             const pt = this.getPoint(e)
             this.pressed = true
