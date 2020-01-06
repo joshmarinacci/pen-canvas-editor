@@ -7,6 +7,7 @@ import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {cloneCanvas, copyToCanvas, toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut, Eye, EyeOff, PlusSquare} from "react-feather"
+import {LayerWrapper} from "./layers";
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
@@ -85,33 +86,6 @@ const pens = [
     blend:'erase',
   }
 ]
-
-function layerVisible(layer) {
-  if(layer.visible) {
-    return <Eye size={16}/>
-  } else {
-    return <EyeOff size={16}/>
-  }
-}
-const penObserver = new Observer(pens[0])
-// panel for a single Layer. no DnD for now.
-const LayerView = ({layer,selected,onSelect, onToggle}) => {
-  return <HBox style={{
-    border: '1px solid black',
-    borderWidth:'1px 0px 0 0px',
-    minWidth:'200px',
-    backgroundColor: selected===layer?'aqua':'white'
-  }}
-               onMouseDown={()=>onSelect(layer)}
-  >
-    <button className={"borderless"} style={{backgroundColor:'white'}} onClick={()=>{
-      layer.visible = !layer.visible
-      onToggle(layer)
-    }}>{layerVisible(layer)}</button>
-    <label>{layer.title}</label>
-    {/*{layer.thumb.canvas}*/}
-  </HBox>
-}
 
 const dialogObserver = new Observer(null)
 
@@ -310,12 +284,6 @@ function App() {
 
   const redraw = ()=>setCounter(counter+1)
   let layers = doc.layers.slice().reverse()
-  layers = layers.map((lay,i) => <LayerView key={i} layer={lay} doc={doc} selected={layer} onSelect={setLayer} onToggle={redraw}/>)
-  const layerWrapper = <VBox className={'right-column second-row'}>{layers}
-  <Toolbox>
-    <button className="borderless"><PlusSquare size={20}/></button>
-  </Toolbox>
-  </VBox>
 
   const undo = () => {
     redoBackup = cloneCanvas(layer.canvas)
@@ -350,7 +318,7 @@ function App() {
       <label className="second-row">{doc.title}</label>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
-      {layerWrapper}
+      <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} doc={doc} selectedLayer={layer}/>
       <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
       </Toolbox>
