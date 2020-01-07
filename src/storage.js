@@ -57,7 +57,7 @@ export class Storage {
         }
 
         const doc = {
-            title: json.title + "better",
+            title: json.title,
             width: json.width,
             height: json.height,
             layers: []

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
-import {HBox, Observer, Toolbox, VBox} from './util.js'
+import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {cloneCanvas, copyToCanvas, toDeg} from "./util";
@@ -230,7 +230,7 @@ function exportPNG() {
   storage.exportToPNGURL(docObserver.get()).then((url)=>{
     const a = document.createElement('a')
     a.href = url
-    a.download = 'layers.png'
+    a.download = docObserver.get().title + ".png"
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -281,8 +281,6 @@ function App() {
     if(zoom > -3) setZoom(zoom-1)
   }
 
-  const Spacer = () => <div style={{flex:1}}/>
-
   const redraw = ()=>setCounter(counter+1)
 
   const undo = () => {
@@ -315,7 +313,7 @@ function App() {
         <button onClick={zoomIn}><ZoomIn/></button>
         <button onClick={zoomOut}><ZoomOut/></button>
       </Toolbox>
-      <label className="second-row">{doc.title}</label>
+      <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
       <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>

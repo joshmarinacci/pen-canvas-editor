@@ -1,6 +1,7 @@
 import {Eye, EyeOff, PlusSquare} from "react-feather";
 import {HBox, Toolbox, VBox} from "./util";
 import React, {useEffect, useState} from "react";
+import {EditableLabel} from './util.js'
 
 function layerVisible(layer) {
     if(layer.visible) {
@@ -10,25 +11,6 @@ function layerVisible(layer) {
     }
 }
 
-const EditableLabel = ({initialValue,onDoneEditing})=>{
-    const [editing, setEditing] = useState(false)
-    const [value, setValue] = useState(initialValue)
-    //update value when initial value changes
-    useEffect(()=>setValue(initialValue),[initialValue])
-
-    if(editing) {
-        return  <input type="text" value={value}
-                       onKeyDown={(e)=>{
-                           if(e.key === 'Enter') {
-                               if(onDoneEditing) onDoneEditing(e.target.value)
-                               setEditing(false)
-                           }
-                       }}
-                       onChange={(e)=>setValue(e.target.value)}/>
-    } else {
-        return <label onDoubleClick={()=>setEditing(true)}>{value}</label>
-    }
-}
 
 // panel for a single Layer. no DnD for now.
 const LayerView = ({layer,selected,onSelect, onToggle}) => {
