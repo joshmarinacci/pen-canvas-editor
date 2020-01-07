@@ -206,18 +206,27 @@ setupDoc(doc)
 const storage = new Storage()
 const docObserver = new Observer(doc)
 
+const ListDocsDialog = ({docs}) =>{
+  return <ul>
+    {docs.map((doc,i)=>{
+      return <li key={i}><b>{doc.id}</b> <button onClick={()=>{
+        storage.load(doc.id).then(doc => {
+          dialogObserver.set(null)
+          docObserver.set(doc)
+        })
+      }}>{doc.title}</button></li>
+    })}
+    <li><button onClick={()=>dialogObserver.set(null)}>cancel</button></li>
+  </ul>
+}
 const saveDoc = () => {
   storage.save(docObserver.get()).then(()=>{
     console.log("done saving",docObserver.get())
   })
 }
+
 const showLoadDocDialog = () => {
-  storage.list().then(items => {
-    storage.load(items[0].id).then(doc => {
-      console.log("loaded the doc",doc)
-      docObserver.set(doc)
-    })
-  })
+  storage.list().then(items => dialogObserver.set(<ListDocsDialog docs={items}/>))
 }
 
 function clearStorage() {

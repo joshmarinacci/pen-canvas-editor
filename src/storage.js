@@ -2,23 +2,31 @@
 //stored docs also have low res thumbnails embedded
 export class Storage {
     save(doc) {
+        if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
         const json = this.DocToJSON(doc)
         const str = JSON.stringify(json)
-        localStorage.setItem('maindoc', str)
-        return Promise.resolve(true)
+        localStorage.setItem(json.id, str)
+        return this.list().then(index => {
+            let entry = index.find(d => d.id === json.id)
+            if(!entry) {
+                entry = {
+                    id: json.id,
+                    title: json.title,
+                }
+                index.push(entry)
+            } else {
+                entry.title = json.title
+            }
+            localStorage.setItem('index',JSON.stringify(index))
+            console.log("saved the index",index)
+            return Promise.resolve(true)
+        })
     }
 
     list() {
-        const img = new Image()
-        img.width = 64
-        img.height = 64
-        return Promise.resolve(
-            [{
-                id: "maindoc",
-                title: 'some doc',
-                thumbnail: img
-            }]
-        )
+        let indexStr = localStorage.getItem('index')
+        if(indexStr) return Promise.resolve(JSON.parse(indexStr))
+        return Promise.resolve([])
     }
 
     clear() {
@@ -57,6 +65,7 @@ export class Storage {
         }
 
         const doc = {
+            id:json.id,
             title: json.title,
             width: json.width,
             height: json.height,
@@ -71,9 +80,10 @@ export class Storage {
     //turns canvas objects into layer data
     DocToJSON(doc) {
         const d2 = {
+            id:doc.id,
             title: doc.title,
             width: doc.width,
-            height: doc.height
+            height: doc.height,
         }
         d2.layers = doc.layers.map(layer => {
             return {
