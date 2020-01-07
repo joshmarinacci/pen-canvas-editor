@@ -211,19 +211,26 @@ const DocThumbnail = ({doc}) => {
   return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
 }
 const ListDocsDialog = ({docs}) =>{
-  return <ul>
-    {docs.map((doc,i)=>{
-      return <li key={i}><b>{doc.id}</b> <button onClick={()=>{
-        storage.load(doc.id).then(doc => {
-          dialogObserver.set(null)
-          docObserver.set(doc)
-        })
-      }}>{doc.title}</button>
-        <DocThumbnail doc={doc}/>
-      </li>
-    })}
-    <li><button onClick={()=>dialogObserver.set(null)}>cancel</button></li>
-  </ul>
+  return <VBox className={'dialog'}>
+    <header>Open</header>
+    <VBox className={'body'}>
+      {docs.map((doc,i)=>{
+        return <HBox key={i} className={"doc-entry"}
+         onClick={()=>{
+          storage.load(doc.id).then(doc => {
+            dialogObserver.set(null)
+            docObserver.set(doc)
+          })
+        }}>
+            <label>{doc.title}</label>
+            <DocThumbnail doc={doc}/>
+        </HBox>
+      })}
+    </VBox>
+    <footer>
+      <Spacer/>
+      <button onClick={()=>dialogObserver.set(null)}>cancel</button></footer>
+  </VBox>
 }
 const saveDoc = () => {
   storage.save(docObserver.get()).then(()=>{
