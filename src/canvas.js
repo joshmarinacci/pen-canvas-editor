@@ -96,6 +96,7 @@ export class PenCanvas extends Component {
                    onPointerCancel={()=> this.pressed = false}
                    onPointerLeave={()=> this.pressed = false  }
                    onPointerOut={()=> this.pressed = false}
+                   onContextMenu={(e)=>e.preventDefault()}
            />
         </div>
     }
