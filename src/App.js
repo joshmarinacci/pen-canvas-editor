@@ -206,6 +206,10 @@ setupDoc(doc)
 const storage = new Storage()
 const docObserver = new Observer(doc)
 
+const DocThumbnail = ({doc}) => {
+  if(!doc || !doc.thumbnail) return <img width={64} height={64}/>
+  return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
+}
 const ListDocsDialog = ({docs}) =>{
   return <ul>
     {docs.map((doc,i)=>{
@@ -214,7 +218,9 @@ const ListDocsDialog = ({docs}) =>{
           dialogObserver.set(null)
           docObserver.set(doc)
         })
-      }}>{doc.title}</button></li>
+      }}>{doc.title}</button>
+        <DocThumbnail doc={doc}/>
+      </li>
     })}
     <li><button onClick={()=>dialogObserver.set(null)}>cancel</button></li>
   </ul>
