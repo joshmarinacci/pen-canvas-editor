@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
-import {HBox, Observer, Toolbox, VBox} from './util.js'
+import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {cloneCanvas, copyToCanvas, toDeg} from "./util";
@@ -206,18 +206,40 @@ setupDoc(doc)
 const storage = new Storage()
 const docObserver = new Observer(doc)
 
+const DocThumbnail = ({doc}) => {
+  if(!doc || !doc.thumbnail) return <img width={64} height={64}/>
+  return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
+}
+const ListDocsDialog = ({docs}) =>{
+  return <VBox className={'dialog'}>
+    <header>Open</header>
+    <VBox className={'body'}>
+      {docs.map((doc,i)=>{
+        return <HBox key={i} className={"doc-entry"}
+         onClick={()=>{
+          storage.load(doc.id).then(doc => {
+            dialogObserver.set(null)
+            docObserver.set(doc)
+          })
+        }}>
+            <label>{doc.title}</label>
+            <DocThumbnail doc={doc}/>
+        </HBox>
+      })}
+    </VBox>
+    <footer>
+      <Spacer/>
+      <button onClick={()=>dialogObserver.set(null)}>cancel</button></footer>
+  </VBox>
+}
 const saveDoc = () => {
   storage.save(docObserver.get()).then(()=>{
     console.log("done saving",docObserver.get())
   })
 }
+
 const showLoadDocDialog = () => {
-  storage.list().then(items => {
-    storage.load(items[0].id).then(doc => {
-      console.log("loaded the doc",doc)
-      docObserver.set(doc)
-    })
-  })
+  storage.list().then(items => dialogObserver.set(<ListDocsDialog docs={items}/>))
 }
 
 function clearStorage() {
@@ -230,7 +252,7 @@ function exportPNG() {
   storage.exportToPNGURL(docObserver.get()).then((url)=>{
     const a = document.createElement('a')
     a.href = url
-    a.download = 'layers.png'
+    a.download = docObserver.get().title + ".png"
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -281,8 +303,6 @@ function App() {
     if(zoom > -3) setZoom(zoom-1)
   }
 
-  const Spacer = () => <div style={{flex:1}}/>
-
   const redraw = ()=>setCounter(counter+1)
 
   const undo = () => {
@@ -315,7 +335,7 @@ function App() {
         <button onClick={zoomIn}><ZoomIn/></button>
         <button onClick={zoomOut}><ZoomOut/></button>
       </Toolbox>
-      <label className="second-row">{doc.title}</label>
+      <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
       <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
       <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>

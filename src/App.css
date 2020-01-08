@@ -1,3 +1,6 @@
+body {
+  --accent-color: aqua;
+}
 canvas {
   touch-action: none;
   user-select: none;
@@ -57,6 +60,53 @@ canvas {
   border: 1px solid #000;
   background: #ddd;
 }
+.toolbar button:hover {
+  background-color: #fff;
+}
+.toolbar button:active {
+  background-color: var(--accent-color);
+}
+
+
+.dialog {
+  border: 1px solid black;
+  background: white;
+}
+.dialog header {
+  background: #ccc;
+  padding: 0.5rem;
+}
+.dialog footer {
+  padding: 0.5rem;
+  background: #ccc;
+  display: flex;
+  flex-direction: row;
+}
+.dialog .body {
+  padding: 0.5rem;
+}
+
+
+.dialog .doc-entry {
+  border: 0px solid black;
+  background-color: #f0f0f0;
+  padding: 0.5rem;
+  margin: 0.5rem;
+}
+.dialog .doc-entry:hover {
+  background-color: var(--accent-color);
+}
+.dialog .doc-entry img {
+  margin: 0.5rem;
+  border: 1px solid black;
+}
+
+.dialog footer button {
+  border-width: 0;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--accent-color);
+}
+
 
 
 canvas.brush {
