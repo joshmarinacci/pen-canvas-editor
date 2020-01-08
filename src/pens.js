@@ -40,6 +40,7 @@ export const PenView = ({pen,color, onSelect, selected}) => {
         cv.width = w
         cv.height = h
         c.fillStyle = 'white'
+        if(pen.blend === 'erase') c.fillStyle = 'black'
         c.fillRect(0,0,w,h)
         const brush = generateBrush(pen,color)
         c.drawImage(brush,w/2-pen.radius,h/2-pen.radius)
@@ -48,8 +49,7 @@ export const PenView = ({pen,color, onSelect, selected}) => {
         c.strokeStyle = (pen === selected) ? '#000' : '#ddd'
         c.strokeRect(l/2,l/2,w-l,h-l)
     })
-    return <canvas width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
-
+    return <canvas className={'brush'} width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
 }
 
 export const RecentPens = ({pens, selected, onSelect, onChange, color}) => {

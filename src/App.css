@@ -57,3 +57,9 @@ canvas {
   border: 1px solid #000;
   background: #ddd;
 }
+
+
+canvas.brush {
+  width: 64px;
+  height: 64px;
+}
