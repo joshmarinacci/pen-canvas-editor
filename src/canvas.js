@@ -5,6 +5,63 @@ import {clearCanvas, cloneCanvas} from "./util";
 
 const HIDPI_FACTOR = 0.5
 
+export class Layer {
+    constructor(w,h,title) {
+        this.type = 'layer'
+        this.visible = true
+        this.canvas = null
+
+        this.thumb={
+            width:64,
+            height:64,
+            canvas:null,
+        }
+
+        this.width = w
+        this.height = h
+        this.title = title
+
+        this.canvas = document.createElement('canvas')
+        this.canvas.width = this.width
+        this.canvas.height = this.height
+
+        const c = this.canvas.getContext('2d')
+        c.save()
+        c.fillStyle = 'rgba(255,255,255,0)'
+        c.globalCompositeOperation = 'copy'
+        c.fillRect(0,0,w,h)
+        c.restore()
+
+
+        const tcan = document.createElement('canvas')
+        tcan.width = 64
+        tcan.height = 64
+        const c2 = tcan.getContext('2d')
+        c2.drawImage(this.canvas,0,0,64,64)
+        this.thumb.canvas = c2
+    }
+
+    stamp(brush,x,y,flow,opacity,blend){
+        const c = this.canvas.getContext('2d')
+        c.save()
+        c.globalAlpha = flow
+        c.globalCompositeOperation = blend
+        c.drawImage(brush,x,y,brush.width,brush.height)
+        c.restore()
+    }
+    clear() {
+        const c = this.canvas.getContext('2d')
+        c.save()
+        c.fillStyle = 'rgba(255,255,255,0)'
+        c.globalCompositeOperation = 'copy'
+        c.fillRect(0,0,1024,1024)
+        c.restore()
+    }
+    drawSelf(ctx) {
+        ctx.drawImage(this.canvas,0,0)
+    }
+}
+
 export class PenCanvas extends Component {
     getPoint(e) {
         const rect = e.target.getBoundingClientRect()
@@ -50,19 +107,13 @@ export class PenCanvas extends Component {
             let angle = angleBetween(this.lastPoint, currentPoint);
             let x = 0
             let y = 0
-            const can = this.getDrawingLayer()
-            const c = can.getContext('2d')
             let brush = generateBrush(pen,this.props.color)
 
-            c.save()
-            c.globalAlpha = pen.flow
-            c.globalCompositeOperation = 'src-over'
             for (let i = 0; i < dist; i += gap) {
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
-                c.drawImage(brush,x-radius,y-radius,radius*2,radius*2)
+                this.getDrawingLayer().stamp(brush,x-radius,y-radius,pen.flow,1.0,'src-over')
             }
-            c.restore()
             this.lastPoint = currentPoint
             this.redraw()
         }
@@ -134,35 +185,31 @@ export class PenCanvas extends Component {
     }
 
     prepDrawingLayer() {
-        clearCanvas(this.getDrawingLayer())
-        clearCanvas(this.getScratchLayer())
+        this.getDrawingLayer().clear()
+        this.getScratchLayer().clear()
         this.drawingLayerVisible = true
     }
 
     getDrawingLayer() {
-        if(!this.drawingLayer) {
-            this.drawingLayer = document.createElement('canvas')
-            this.drawingLayer.width = 1024
-            this.drawingLayer.height = 1024
-        }
+        if(!this.drawingLayer) this.drawingLayer = new Layer(1024,1024,'temp-drawing-layer')
         return this.drawingLayer
     }
 
     drawLayer(c, layer) {
         if(!layer.visible) return
         if(layer === this.currentLayer() && this.drawingLayerVisible) {
-            clearCanvas(this.getScratchLayer())
-            const c2 = this.getScratchLayer().getContext('2d')
+            this.getScratchLayer().clear()
+            const c2 = this.getScratchLayer().canvas.getContext('2d')
             c2.save()
-            c2.drawImage(layer.canvas,0,0)
+            layer.drawSelf(c2)
             if(this.currentPen().blend === 'erase') c2.globalCompositeOperation = "destination-out"
-            c2.drawImage(this.getDrawingLayer(),0,0)
+            this.getDrawingLayer().drawSelf(c2)
             c2.restore()
             c.globalAlpha = this.currentPen().opacity
-            c.drawImage(this.getScratchLayer(),0,0)
+            this.getScratchLayer().drawSelf(c)
             return
         }
-        c.drawImage(layer.canvas,0,0)
+        layer.drawSelf(c)
     }
 
     mergeDrawingLayer() {
@@ -171,7 +218,7 @@ export class PenCanvas extends Component {
         c.save()
         c.globalAlpha = this.currentPen().opacity
         if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
-        c.drawImage(this.drawingLayer,0,0)
+        this.drawingLayer.drawSelf(c)
         c.restore()
         if(this.props.onDrawDone) this.props.onDrawDone(before)
         this.drawingLayerVisible = false
@@ -181,11 +228,7 @@ export class PenCanvas extends Component {
 
 
     getScratchLayer() {
-        if(!this.scratchLayer) {
-            this.scratchLayer = document.createElement('canvas')
-            this.scratchLayer.width = 1024
-            this.scratchLayer.height = 1024
-        }
+        if(!this.scratchLayer) this.scratchLayer = new Layer(1024,1024,'scratch')
         return this.scratchLayer
     }
 }

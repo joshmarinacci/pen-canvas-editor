@@ -8,6 +8,7 @@ import {RecentPens} from './pens.js'
 import {cloneCanvas, copyToCanvas, toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut, Eye, EyeOff, PlusSquare} from "react-feather"
 import {LayerWrapper} from "./layers";
+import {Layer} from "./canvas";
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
@@ -129,79 +130,11 @@ const doc = {
   width:DW,
   height:DH,
   layers: [
-    {
-      type:'layer',
-      width:DW,
-      height:DH,
-      title:'bottom layer',
-      visible:true,
-      canvas: null,
-      thumb:{
-        width:64,
-        height:64,
-        canvas:null,
-      }
-    },
-    {
-      type:'layer',
-      width:DW,
-      height:DH,
-      title:'middle layer',
-      visible:true,
-      canvas: null,
-      thumb:{
-        width:64,
-        height:64,
-        canvas:null,
-      }
-    },
-    {
-      type:'layer',
-      width:DW,
-      height:DH,
-      title:'top layer',
-      visible:true,
-      canvas: null,
-      thumb:{
-        width:64,
-        height:64,
-        canvas:null,
-      }
-    }
+    new Layer(DW,DH,'bottom layer'),
+    new Layer(DW,DH,'middle layer'),
+    new Layer(DW,DH,'top layer'),
   ]
 }
-
-function setupLayer(layer) {
-  const can = document.createElement('canvas')
-  const w = layer.width
-  const h = layer.height
-
-  can.width = w
-  can.height = h
-
-  const c = can.getContext('2d')
-  c.save()
-  c.fillStyle = 'rgba(255,255,255,0)'
-  c.globalCompositeOperation = 'copy'
-  c.fillRect(0,0,w,h)
-  c.restore()
-
-  layer.canvas = can
-
-  const tcan = document.createElement('canvas')
-  tcan.width = 64
-  tcan.height = 64
-  const c2 = tcan.getContext('2d')
-  c2.drawImage(can,0,0,64,64)
-  layer.thumb.canvas = c2
-}
-
-function setupDoc(doc) {
-  doc.layers.forEach(layer => {
-    setupLayer(layer)
-  })
-}
-setupDoc(doc)
 
 const storage = new Storage()
 const docObserver = new Observer(doc)
