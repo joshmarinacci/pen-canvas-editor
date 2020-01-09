@@ -232,6 +232,12 @@ const ListDocsDialog = ({docs}) =>{
       <button onClick={()=>dialogObserver.set(null)}>cancel</button></footer>
   </VBox>
 }
+
+const DocStats = ({doc}) => {
+  return <div>
+    <p>layer count = {doc.layers.length}</p>
+  </div>
+}
 const saveDoc = () => {
   storage.save(docObserver.get()).then(()=>{
     console.log("done saving",docObserver.get())
@@ -342,7 +348,8 @@ function App() {
       <Toolbox className="bottom-row full-width">
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
       </Toolbox>
-    <Dragger><HSLPicker color={color} onChange={setColor}/></Dragger>
+    <Dragger x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
+    <Dragger x={100} y={100}><DocStats doc={doc}/></Dragger>
     <DialogContainer/>
     <PopupContainer/>
   </div>
