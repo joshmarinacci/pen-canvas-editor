@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 
 export class Observer {
     constructor(value) {
@@ -137,4 +137,54 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
     } else {
         return <label onDoubleClick={()=>setEditing(true)}>{value}</label>
     }
+}
+
+class DialogManager extends Observer {
+    show(payload){
+        this.set(payload)
+    }
+    hide(){
+        this.set(null)
+    }
+}
+const dm = new DialogManager()
+
+export const DialogContext = React.createContext(dm)
+
+export const DialogContainer = () => {
+    const dm = useContext(DialogContext)
+    const [dialog,setDialog] = useState(dm.get())
+    useEffect(()=>{
+        const onChange = (val) => setDialog(val)
+        dm.addEventListener(onChange)
+        return () => dm.removeEventListener(onChange)
+    })
+    const style = {
+        border:'1px solid red',
+        position:'fixed',
+        width:'100vw',
+        height:'100vh',
+        backgroundColor: 'rgba(255,255,255,0.9',
+        display:'flex',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+    }
+    if(!dialog) style.display = 'none'
+    return <div style={style}>{dialog}</div>
+}
+
+
+export const DocStats = ({doc}) => {
+    const tiles = doc.layers.reduce((acc,layer)=>{
+        return acc + layer.getTileCount()
+    },0)
+    const filled = doc.layers.reduce((acc,layer)=>acc+layer.getFilledTileCount(),0)
+    return <div style={{
+        background:'white'
+    }}>
+        <p>layer count = {doc.layers.length}</p>
+        <p>tile count = {tiles}</p>
+        <p>filled tile count {filled}</p>
+    </div>
 }

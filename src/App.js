@@ -1,15 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import './App.css';
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
-import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox} from './util.js'
+import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
-import {PenEditor} from "./pens";
 import {RecentColors} from "./colors";
+import {DialogContainer, DocStats} from "./util";
+import {ListDocsDialog} from "./storage";
 
 // the list of customized pens
 const allPens = [
@@ -64,33 +65,6 @@ const allPens = [
   }
 ]
 
-const dialogObserver = new Observer(null)
-
-const DialogContainer = () => {
-  const [dialog,setDialog] = useState(dialogObserver.get())
-  useEffect(()=>{
-    const onChange = (val) => setDialog(val)
-    dialogObserver.addEventListener(onChange)
-    return () => dialogObserver.removeEventListener(onChange)
-  })
-  const style = {
-    border:'1px solid red',
-    position:'fixed',
-    width:'100vw',
-    height:'100vh',
-    backgroundColor: 'rgba(255,255,255,0.9',
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center',
-  }
-  if(dialog === null) {
-    style.display = 'none'
-  }
-  return <div style={style}>
-    {dialog}
-  </div>
-}
 const PopupContainer = () => {
   const style = {
     display:"none"
@@ -112,73 +86,6 @@ const doc = {
 
 const storage = new Storage()
 const docObserver = new Observer(doc)
-
-const DocThumbnail = ({doc}) => {
-  if(!doc || !doc.thumbnail) return <img width={64} height={64}/>
-  return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
-}
-const ListDocsDialog = ({docs}) =>{
-  return <VBox className={'dialog'}>
-    <header>Open</header>
-    <VBox className={'body'}>
-      {docs.map((doc,i)=>{
-        return <HBox key={i} className={"doc-entry"}
-         onClick={()=>{
-          storage.load(doc.id).then(doc => {
-            dialogObserver.set(null)
-            docObserver.set(doc)
-          })
-        }}>
-            <label>{doc.title}</label>
-            <DocThumbnail doc={doc}/>
-        </HBox>
-      })}
-    </VBox>
-    <footer>
-      <Spacer/>
-      <button onClick={()=>dialogObserver.set(null)}>cancel</button></footer>
-  </VBox>
-}
-
-const DocStats = ({doc}) => {
-  const tiles = doc.layers.reduce((acc,layer)=>{
-    return acc + layer.getTileCount()
-  },0)
-  const filled = doc.layers.reduce((acc,layer)=>acc+layer.getFilledTileCount(),0)
-  return <div style={{
-    background:'white'
-  }}>
-    <p>layer count = {doc.layers.length}</p>
-    <p>tile count = {tiles}</p>
-    <p>filled tile count {filled}</p>
-  </div>
-}
-const saveDoc = () => {
-  storage.save(docObserver.get()).then(()=>{
-    console.log("done saving",docObserver.get())
-  })
-}
-
-const showLoadDocDialog = () => {
-  storage.list().then(items => dialogObserver.set(<ListDocsDialog docs={items}/>))
-}
-
-function clearStorage() {
-  storage.clear().then(()=>{
-    console.log('everything is cleared')
-  })
-}
-
-function exportPNG() {
-  storage.exportToPNGURL(docObserver.get()).then((url)=>{
-    const a = document.createElement('a')
-    a.href = url
-    a.download = docObserver.get().title + ".png"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-  })
-}
 
 
 let undoBackup = null
@@ -223,6 +130,30 @@ function App() {
   }
 
   const redraw = ()=>setCounter(counter+1)
+  const dm = useContext(DialogContext)
+  const showLoadDocDialog = () => {
+    storage.list().then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={setDoc}/>))
+  }
+  const saveDoc = () => {
+    storage.save(docObserver.get()).then(()=>{
+      console.log("done saving",docObserver.get())
+    })
+  }
+  const clearStorage = () => {
+    storage.clear().then(()=>{
+      console.log('everything is cleared')
+    })
+  }
+  const exportPNG = () => {
+    storage.exportToPNGURL(docObserver.get()).then((url)=>{
+      const a = document.createElement('a')
+      a.href = url
+      a.download = docObserver.get().title + ".png"
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    })
+  }
 
   const undo = () => {
     redoBackup = layer.makeClone()
@@ -243,40 +174,38 @@ function App() {
     redoBackup = null
     redraw()
   };
-  let closeBrushDialog = (newPen) => {
+  const updatePenSettings = (newPen) => {
     setPens(pens.map((p)=>{
       if(p === pen) return newPen
       return p
     }))
     setPen(newPen)
-    dialogObserver.set(null)
   }
-  let showBrushDialog = ()=> dialogObserver.set(<PenEditor startPen={pen} onClose={closeBrushDialog}/>)
 
   return <div id={"main"}>
-      <Toolbox className="top-row full-width">
-        <button onClick={saveDoc} ><Save/></button>
-        <button onClick={showLoadDocDialog}>open</button>
-        <button onClick={clearStorage}>clear</button>
-        <button onClick={exportPNG}><Download/></button>
-        <Spacer/>
-        <button onClick={undo} disabled={undoBackup === null}>undo</button>
-        <button onClick={redo} disabled={redoBackup === null}>redo</button>
-        <Spacer/>
-        <button onClick={zoomIn}><ZoomIn/></button>
-        <button onClick={zoomOut}><ZoomOut/></button>
-      </Toolbox>
-      <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
-      <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={showBrushDialog}/>
-      <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
-      <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
-      <Toolbox className="bottom-row full-width">
-        <RecentColors colors={colors} onSelect={setColor} color={color}/>
-      </Toolbox>
-    <Dragger x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
-    <Dragger x={600} y={400}><DocStats doc={doc}/></Dragger>
-    <DialogContainer/>
-    <PopupContainer/>
+        <Toolbox className="top-row full-width">
+          <button onClick={saveDoc} ><Save/></button>
+          <button onClick={showLoadDocDialog}>open</button>
+          <button onClick={clearStorage}>clear</button>
+          <button onClick={exportPNG}><Download/></button>
+          <Spacer/>
+          <button onClick={undo} disabled={undoBackup === null}>undo</button>
+          <button onClick={redo} disabled={redoBackup === null}>redo</button>
+          <Spacer/>
+          <button onClick={zoomIn}><ZoomIn/></button>
+          <button onClick={zoomOut}><ZoomOut/></button>
+        </Toolbox>
+        <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
+        <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={updatePenSettings}/>
+        <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
+        <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
+        <Toolbox className="bottom-row full-width">
+          <RecentColors colors={colors} onSelect={setColor} color={color}/>
+        </Toolbox>
+      <Dragger x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
+      <Dragger x={600} y={400}><DocStats doc={doc}/></Dragger>
+      <DialogContainer/>
+      <PopupContainer/>
   </div>
 }
 

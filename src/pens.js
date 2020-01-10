@@ -1,6 +1,6 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import {toDeg, VBox} from './util.js'
-import {HBox, Point, Spacer} from "./util";
+import {DialogContext, HBox, Point, Spacer} from "./util";
 import {brushPath} from "./pointer";
 
 // panel that shows settings for a pen, let you customize them
@@ -85,7 +85,6 @@ function currentFill(pen,color,a) {
     return `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%,${alpha})`
 }
 
-
 export function generateBrush(pen, color) {
     let radius = pen.radius
     let can2 = document.createElement('canvas')
@@ -126,8 +125,15 @@ export const PenView = ({pen,color, onSelect, selected}) => {
 }
 
 export const RecentPens = ({pens, selected, onSelect, onChange, color, onEdit}) => {
+    const dm = useContext(DialogContext)
+    const editPen = () => {
+        dm.show(<PenEditor startPen={selected} onClose={(pen)=> {
+            dm.hide();
+            onEdit(pen);
+        }}/>)
+    }
     return <VBox className='left-column second-row'>
         {pens.map((pen, i) => <PenView key={i} pen={pen} onSelect={onSelect} color={color} selected={selected}/>)}
-        <button onClick={onEdit}>edit</button>
+        <button onClick={editPen}>edit</button>
     </VBox>
 };

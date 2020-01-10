@@ -1,6 +1,9 @@
 // all methods return promises
 //stored docs also have low res thumbnails embedded
 
+import React, {useContext} from "react";
+import {DialogContext, HBox, Spacer, VBox} from "./util";
+
 export class Storage {
     async save(doc) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
@@ -155,3 +158,35 @@ export class Storage {
         })
     }
 }
+
+const DocThumbnail = ({doc}) => {
+    if(!doc || !doc.thumbnail) return <img width={64} height={64}/>
+    return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
+}
+
+export const ListDocsDialog = ({docs, storage, setDoc}) =>{
+    const dm = useContext(DialogContext)
+    return <VBox className={'dialog'}>
+        <header>Open</header>
+        <VBox className={'body'}>
+            {docs.map((doc,i)=>{
+                return <HBox key={i} className={"doc-entry"}
+                             onClick={()=>{
+                                 storage.load(doc.id).then(doc => {
+                                     dm.hide()
+                                     setDoc(doc)
+                                     // docObserver.set(doc)
+                                 })
+                             }}>
+                    <label>{doc.title}</label>
+                    <DocThumbnail doc={doc}/>
+                </HBox>
+            })}
+        </VBox>
+        <footer>
+            <Spacer/>
+            <button onClick={()=>dm.hide()}>cancel</button></footer>
+    </VBox>
+}
+
+
