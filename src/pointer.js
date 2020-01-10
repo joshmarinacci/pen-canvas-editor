@@ -28,17 +28,14 @@ export class PointerHandler {
         const pt = this.getPoint(e)
         this.pressed = true
         this.lastPoint = pt
-        this.prepDrawingLayer()
+        this.drawingLayer.clear()
+        this.scratchLayer.clear()
+        this.drawingLayerVisible = true
     }
 
 
     isActive() {
         return this.drawingLayerVisible
-    }
-    prepDrawingLayer() {
-        this.drawingLayer.clear()
-        this.scratchLayer.clear()
-        this.drawingLayerVisible = true
     }
 
     drawLayer(c,layer) {
