@@ -42,7 +42,7 @@ const allPens = [
   {
     type:'pen',
     title:'giant',
-    opacity:1.0,
+    opacity:0.5,
     hardness:0.0,
     flow:0.5,
     color:0xFF0000,

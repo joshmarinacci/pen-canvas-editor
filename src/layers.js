@@ -117,13 +117,7 @@ export class Layer {
     drawSelf(c) {
         this.forAllTiles((t,i,j) => {
             if(t.empty()) return
-            c.save()
-            c.translate(i*TILE_SIZE, j*TILE_SIZE)
-            c.drawImage(t.getCanvas(),0,0)
-            // c.fillStyle = 'green'
-            // c.strokeStyle = 'green'
-            // c.strokeRect(5,5,t.size-5,t.size-5)
-            c.restore()
+            c.drawImage(t.getCanvas(),i*TILE_SIZE,j*TILE_SIZE)
         })
     }
     drawLayer(layer, opacity=1.0, blend='src-atop') {
@@ -135,9 +129,6 @@ export class Layer {
             c.globalAlpha = opacity
             c.globalCompositeOperation = blend
             c.drawImage(srcTile.getCanvas(),0,0)
-            // c.fillStyle = 'green'
-            // c.strokeStyle = 'green'
-            // c.strokeRect(5,5,dstTile.size-5,dstTile.size-5)
             c.restore()
         })
     }

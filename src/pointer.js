@@ -46,8 +46,7 @@ export class PointerHandler {
         this.scratchLayer.drawLayer(layer)
         let blend = 'src-atop'
         if(this.pen.blend === 'erase') blend = "destination-out"
-        this.scratchLayer.drawLayer(this.drawingLayer,1.0,blend)
-        c.globalAlpha = this.pen.opacity
+        this.scratchLayer.drawLayer(this.drawingLayer,this.pen.opacity,blend)
         this.scratchLayer.drawSelf(c)
     }
     getPoint(e) {
