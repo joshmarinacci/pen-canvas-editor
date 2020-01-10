@@ -1,7 +1,7 @@
 import {generateBrush} from "./pens";
 import {Layer} from "./layers";
 import {Point} from "./util";
-import {HIDPI_FACTOR} from "./common";
+import {DH, DW, HIDPI_FACTOR} from "./common";
 
 function angleBetween(point1, point2) {
     return Math.atan2(point2.x - point1.x, point2.y - point1.y);
@@ -13,8 +13,8 @@ export class PointerHandler {
         this.pressed = false
         this.prev = null
         this.zoom = 1
-        this.scratchLayer = new Layer(1024,1024,'scratch')
-        this.drawingLayer = new Layer(1024,1024,'pen-layer')
+        this.scratchLayer = new Layer(DW,DH,'scratch')
+        this.drawingLayer = new Layer(DW,DH,'pen-layer')
         this.drawingLayerVisible = false
     }
     reset(layer,zoom,pen,eraser,color) {

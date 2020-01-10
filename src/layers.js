@@ -92,7 +92,7 @@ export class Layer {
         let sy = Math.floor(y/TILE_SIZE)
         let ex = Math.floor((x+brush.width)/TILE_SIZE)+1
         let ey = Math.floor((y+brush.height)/TILE_SIZE)+1
-        // console.log(`drawing ${sx}-${ex} ${sy}-${ey}  for ${x},${y}`)
+        //console.log(`drawing ${sx}-${ex} ${sy}-${ey}  for ${x},${y} with ${blend}`)
         //make sure indexes are valid
         sx = Math.max(sx,0)
         sy = Math.max(sy,0)

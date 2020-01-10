@@ -8,6 +8,7 @@ import {RecentPens} from './pens.js'
 import {toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
+import {DH, DW} from "./common";
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
@@ -117,8 +118,6 @@ const PopupContainer = () => {
   return <div style={style}></div>
 }
 
-const DW = 1024
-const DH = 1024
 
 const doc = {
   title:"my first doc",

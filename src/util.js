@@ -96,7 +96,7 @@ export function clearCanvas(canvas) {
     c.save()
     c.fillStyle = 'rgba(255,255,255,0)'
     c.globalCompositeOperation = 'copy'
-    c.fillRect(0,0,1024,1024)
+    c.fillRect(0,0,canvas.width,canvas.height)
     c.restore()
 }
 
