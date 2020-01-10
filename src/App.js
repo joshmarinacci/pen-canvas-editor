@@ -167,8 +167,16 @@ const ListDocsDialog = ({docs}) =>{
 }
 
 const DocStats = ({doc}) => {
-  return <div>
+  const tiles = doc.layers.reduce((acc,layer)=>{
+    return acc + layer.getTileCount()
+  },0)
+  const filled = doc.layers.reduce((acc,layer)=>acc+layer.getFilledTileCount(),0)
+  return <div style={{
+    background:'white'
+  }}>
     <p>layer count = {doc.layers.length}</p>
+    <p>tile count = {tiles}</p>
+    <p>filled tile count {filled}</p>
   </div>
 }
 const saveDoc = () => {
@@ -245,14 +253,16 @@ function App() {
   const redraw = ()=>setCounter(counter+1)
 
   const undo = () => {
-    redoBackup = cloneCanvas(layer.canvas)
-    copyToCanvas(undoBackup,layer.canvas)
+    redoBackup = layer.makeClone()
+    layer.clear()
+    layer.drawLayer(undoBackup)
     undoBackup = null
     redraw()
   }
   const redo = () => {
-    undoBackup = cloneCanvas(layer.canvas)
-    copyToCanvas(redoBackup,layer.canvas)
+    undoBackup = layer.makeClone()
+    layer.clear()
+    layer.drawLayer(redoBackup)
     redoBackup = null
     redraw()
   }
@@ -282,7 +292,7 @@ function App() {
         <RecentColors colors={colors} onSelect={setColor} color={color}/>
       </Toolbox>
     <Dragger x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
-    <Dragger x={100} y={100}><DocStats doc={doc}/></Dragger>
+    <Dragger x={600} y={400}><DocStats doc={doc}/></Dragger>
     <DialogContainer/>
     <PopupContainer/>
   </div>

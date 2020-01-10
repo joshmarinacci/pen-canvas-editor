@@ -4,61 +4,127 @@ import {generateBrush} from './pens.js'
 import {clearCanvas, cloneCanvas} from "./util";
 
 const HIDPI_FACTOR = 0.5
+const TILE_SIZE = 256
 
+class Tile {
+    constructor(size) {
+        this.size = size
+        this.canvas = null
+        this.initCanvas()
+    }
+    clear() {
+        if(this.canvas) {
+            const c = this.canvas.getContext('2d')
+            c.save()
+            c.fillStyle = 'rgba(255,255,255,0)'
+            c.globalCompositeOperation = 'copy'
+            c.fillRect(0, 0, this.size,this.size)
+            c.restore()
+        }
+    }
+    initCanvas() {
+        this.canvas = document.createElement('canvas')
+        this.canvas.width = this.size
+        this.canvas.height = this.size
+        const c = this.canvas.getContext('2d')
+        c.save()
+        c.fillStyle = 'rgba(255,255,255,0)'
+        c.globalCompositeOperation = 'copy'
+        c.fillRect(0,0,this.size,this.size)
+        c.restore()
+        return this.canvas
+    }
+    getCanvas() {
+        if(!this.canvas) this.initCanvas()
+        return this.canvas
+    }
+}
 export class Layer {
     constructor(w,h,title) {
         this.type = 'layer'
         this.visible = true
-        this.canvas = null
-
-        this.thumb={
-            width:64,
-            height:64,
-            canvas:null,
-        }
 
         this.width = w
         this.height = h
+        this.tiles = []
+        let tw = Math.ceil(this.width/TILE_SIZE)
+        let th = Math.ceil(this.height/TILE_SIZE)
+        for(let i=0;i<tw;i++) {
+            this.tiles[i] = []
+            for(let j=0;j<th;j++) {
+                this.tiles[i][j] = new Tile(TILE_SIZE)
+            }
+        }
         this.title = title
+        this.forAllTiles(tile => tile.clear())
+    }
+    getTileCount() {
+        return this.tiles.length * this.tiles[0].length
+    }
+    getFilledTileCount() {
+        let total = 0
+        this.forAllTiles(t => {
+            if(t.canvas) total++
+        })
+        return total
+    }
 
-        this.canvas = document.createElement('canvas')
-        this.canvas.width = this.width
-        this.canvas.height = this.height
+    forAllTiles(cb) {
+        for(let i=0; i<this.tiles.length; i++) {
+            let row = this.tiles[i]
+            for(let j=0; j<row.length; j++) {
+                cb(this.tiles[i][j],i,j)
+            }
+        }
+    }
 
-        const c = this.canvas.getContext('2d')
-        c.save()
-        c.fillStyle = 'rgba(255,255,255,0)'
-        c.globalCompositeOperation = 'copy'
-        c.fillRect(0,0,w,h)
-        c.restore()
-
-
-        const tcan = document.createElement('canvas')
-        tcan.width = 64
-        tcan.height = 64
-        const c2 = tcan.getContext('2d')
-        c2.drawImage(this.canvas,0,0,64,64)
-        this.thumb.canvas = c2
+    debugRect(color,x,y,w,h) {
+        this.forAllTiles((t,i,j)=>{
+            const c = t.getCanvas().getContext('2d')
+            c.fillStyle = color
+            c.fillRect(x-i*TILE_SIZE,y-j*TILE_SIZE,w,h)
+        })
     }
 
     stamp(brush,x,y,flow,opacity,blend){
-        const c = this.canvas.getContext('2d')
-        c.save()
-        c.globalAlpha = flow
-        c.globalCompositeOperation = blend
-        c.drawImage(brush,x,y,brush.width,brush.height)
-        c.restore()
+        //draws onto every tile
+        this.forAllTiles((t,i,j)=>{
+            const ctx = t.getCanvas().getContext('2d')
+            ctx.save()
+            ctx.globalAlpha = flow
+            ctx.globalCompositeOperation = blend
+            ctx.drawImage(brush,x-i*TILE_SIZE,y-j*TILE_SIZE,brush.width,brush.height)
+            ctx.restore()
+        })
     }
     clear() {
-        const c = this.canvas.getContext('2d')
-        c.save()
-        c.fillStyle = 'rgba(255,255,255,0)'
-        c.globalCompositeOperation = 'copy'
-        c.fillRect(0,0,1024,1024)
-        c.restore()
+        this.forAllTiles(t => t.clear())
     }
     drawSelf(ctx) {
-        ctx.drawImage(this.canvas,0,0)
+        this.forAllTiles((t,i,j) => {
+            ctx.drawImage(t.getCanvas(),i*TILE_SIZE,j*TILE_SIZE)
+        })
+    }
+    drawLayer(layer, opacity=1.0, blend='src-atop') {
+        // console.log('drawing layer',layer.title,'to',this.title)
+        layer.forAllTiles((srcTile,i,j) => {
+            const dstTile = this.tiles[i][j]
+            const c = dstTile.getCanvas().getContext('2d')
+            c.save()
+            c.globalAlpha = opacity
+            c.globalCompositeOperation = blend
+            c.drawImage(srcTile.getCanvas(),0,0)
+            c.fillStyle = 'green'
+            c.strokeStyle = 'green'
+            c.strokeRect(5,5,dstTile.size-5,dstTile.size-5)
+            c.restore()
+        })
+    }
+
+    makeClone() {
+        const layer = new Layer(this.width,this.height,this.title+'-clone')
+        layer.drawLayer(this)
+        return layer
     }
 }
 
@@ -191,41 +257,38 @@ export class PenCanvas extends Component {
     }
 
     getDrawingLayer() {
-        if(!this.drawingLayer) this.drawingLayer = new Layer(1024,1024,'temp-drawing-layer')
+        if(!this.drawingLayer) {
+            const cl = this.currentLayer()
+            this.drawingLayer = new Layer(cl.width,cl.height,'temp-drawing-layer')
+        }
         return this.drawingLayer
     }
 
     drawLayer(c, layer) {
         if(!layer.visible) return
         if(layer === this.currentLayer() && this.drawingLayerVisible) {
-            this.getScratchLayer().clear()
-            const c2 = this.getScratchLayer().canvas.getContext('2d')
-            c2.save()
-            layer.drawSelf(c2)
-            if(this.currentPen().blend === 'erase') c2.globalCompositeOperation = "destination-out"
-            this.getDrawingLayer().drawSelf(c2)
-            c2.restore()
+            const scratch = this.getScratchLayer()
+            scratch.clear()
+            scratch.drawLayer(layer)
+            let blend = 'src-atop'
+            if(this.currentPen().blend === 'erase') blend = "destination-out"
+            scratch.drawLayer(this.getDrawingLayer(),1.0,blend)
             c.globalAlpha = this.currentPen().opacity
-            this.getScratchLayer().drawSelf(c)
+            scratch.drawSelf(c)
             return
         }
         layer.drawSelf(c)
     }
 
     mergeDrawingLayer() {
-        const before = cloneCanvas(this.currentLayer().canvas)
-        const c = this.currentLayer().canvas.getContext('2d')
-        c.save()
-        c.globalAlpha = this.currentPen().opacity
-        if(this.currentPen().blend === 'erase') c.globalCompositeOperation = "destination-out"
-        this.drawingLayer.drawSelf(c)
-        c.restore()
+        const before = this.currentLayer().makeClone()
+        let blend = 'src-atop'
+        if(this.currentPen().blend === 'erase') blend = "destination-out"
+        this.currentLayer().drawLayer(this.getDrawingLayer(),this.currentPen().opacity,blend)
         if(this.props.onDrawDone) this.props.onDrawDone(before)
         this.drawingLayerVisible = false
         this.redraw()
     }
-
-
 
     getScratchLayer() {
         if(!this.scratchLayer) this.scratchLayer = new Layer(1024,1024,'scratch')
