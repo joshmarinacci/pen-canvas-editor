@@ -138,6 +138,15 @@ export class Layer {
         layer.drawLayer(this)
         return layer
     }
+
+    toDataURL(type) {
+        const canvas = document.createElement('canvas')
+        canvas.width = this.width
+        canvas.height = this.height
+        const c = canvas.getContext('2d')
+        this.drawSelf(c)
+        return canvas.toDataURL(type)
+    }
 }
 
 function layerVisible(layer) {

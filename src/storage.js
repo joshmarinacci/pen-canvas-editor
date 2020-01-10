@@ -101,7 +101,7 @@ export class Storage {
                 height: layer.height,
                 visible: layer.visible,
                 //no canvas
-                data: layer.canvas.toDataURL('png')
+                data: layer.toDataURL('png')
             }
         })
         return d2
@@ -139,7 +139,7 @@ export class Storage {
             ctx.fillStyle = 'white'
             ctx.fillRect(0, 0, w, h)
             doc.layers.forEach(layer => {
-                if(layer.visible) ctx.drawImage(layer.canvas, 0, 0)
+                if(layer.visible) layer.drawSelf(ctx)//ctx.drawImage(layer.canvas, 0, 0)
             })
 
             const canvas2 = document.createElement('canvas')
@@ -150,8 +150,9 @@ export class Storage {
             const ctx2 = canvas2.getContext('2d')
             ctx2.fillStyle = 'white'
             ctx2.fillRect(0,0,canvas2.width,canvas2.height)
+            ctx2.scale(1/scale,1/scale)
             doc.layers.forEach(layer => {
-                if(layer.visible) ctx2.drawImage(layer.canvas, 0, 0, canvas2.width,canvas2.height)
+                if(layer.visible) layer.drawSelf(ctx2)
             })
             let url = canvas2.toDataURL()
             res(url)
