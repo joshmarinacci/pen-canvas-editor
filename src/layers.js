@@ -120,9 +120,9 @@ export class Layer {
             c.save()
             c.translate(i*TILE_SIZE, j*TILE_SIZE)
             c.drawImage(t.getCanvas(),0,0)
-            c.fillStyle = 'green'
-            c.strokeStyle = 'green'
-            c.strokeRect(5,5,t.size-5,t.size-5)
+            // c.fillStyle = 'green'
+            // c.strokeStyle = 'green'
+            // c.strokeRect(5,5,t.size-5,t.size-5)
             c.restore()
         })
     }
@@ -135,9 +135,9 @@ export class Layer {
             c.globalAlpha = opacity
             c.globalCompositeOperation = blend
             c.drawImage(srcTile.getCanvas(),0,0)
-            c.fillStyle = 'green'
-            c.strokeStyle = 'green'
-            c.strokeRect(5,5,dstTile.size-5,dstTile.size-5)
+            // c.fillStyle = 'green'
+            // c.strokeStyle = 'green'
+            // c.strokeRect(5,5,dstTile.size-5,dstTile.size-5)
             c.restore()
         })
     }
