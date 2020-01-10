@@ -316,3 +316,30 @@ export class HSLPicker extends Component {
 
     }
 }
+
+// a button just showing a color, no textf
+export const ColorButton = ({color, caption, onClick, selected}) => {
+    if(color.hue) {
+        color =  `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
+    }
+    const style = {
+        backgroundColor:color,
+        height:'2em',
+        width:'2em',
+        border:'1px solid black'
+    }
+    if(selected) {
+        style.border = '3px solid white'
+    }
+    return <button onClick={onClick} style={style}/>
+}
+
+// the N most recent colors
+export const RecentColors = ({colors, color, onSelect}) => {
+    return <div style={{
+    }}>
+        {colors.map((c,i)=>{
+            return <ColorButton key={i} color={c} onClick={()=>onSelect(c)} selected={color===c}/>
+        })}
+    </div>
+};

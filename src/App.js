@@ -5,38 +5,12 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {PenEditor} from "./pens";
+import {RecentColors} from "./colors";
 
-// a button just showing a color, no textf
-const ColorButton = ({color, caption, onClick, selected}) => {
-  if(color.hue) {
-    color =  `hsla(${toDeg(color.hue)},${color.sat*100}%,${color.lit*100}%)`
-  }
-  const style = {
-    backgroundColor:color,
-    height:'2em',
-    width:'2em',
-    border:'1px solid black'
-  }
-  if(selected) {
-    style.border = '3px solid white'
-  }
-  return <button onClick={onClick} style={style}/>
-}
-
-// the N most recent colors
-const RecentColors = ({colors, color, onSelect}) => {
-  return <div style={{
-  }}>
-    {colors.map((c,i)=>{
-      return <ColorButton key={i} color={c} onClick={()=>onSelect(c)} selected={color===c}/>
-    })}
-  </div>
-};
 // the list of customized pens
 const allPens = [
   {
@@ -71,10 +45,10 @@ const allPens = [
   },
   {
     type:'pen',
-    title:'thin',
-    hardness:0.5,
-    opacity: 1.0,
-    flow: 0.5,
+    title:'pencil',
+    hardness:0.8,
+    opacity: 0.5,
+    flow: 0.2,
     color: 0x000000,
     radius:1.2, //in pixels
   },
