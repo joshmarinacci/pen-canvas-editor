@@ -1,6 +1,6 @@
 import {Eye, EyeOff, PlusSquare} from "react-feather";
 import {HBox, Toolbox, VBox} from "./util";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {EditableLabel} from './util.js'
 
 function layerVisible(layer) {

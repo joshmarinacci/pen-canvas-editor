@@ -1,7 +1,5 @@
 // all methods return promises
 //stored docs also have low res thumbnails embedded
-import {Toolbox} from './util.js'
-import React from 'react'
 
 export class Storage {
     async save(doc) {

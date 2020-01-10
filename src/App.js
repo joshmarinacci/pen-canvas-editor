@@ -5,8 +5,8 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {cloneCanvas, copyToCanvas, toDeg} from "./util";
-import {Save, Download, ZoomIn, ZoomOut, Eye, EyeOff, PlusSquare} from "react-feather"
+import {toDeg} from "./util";
+import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
 import {LayerWrapper} from "./layers";
 import {Layer} from "./canvas";
 
@@ -27,10 +27,6 @@ const ColorButton = ({color, caption, onClick, selected}) => {
   return <button onClick={onClick} style={style}/>
 }
 
-// sliders and hex input, 0-255 & hex output
-const RGBPicker = () => {
-  return <div>rgb picker</div>
-}
 // the N most recent colors
 const RecentColors = ({colors, color, onSelect}) => {
   return <div style={{
@@ -90,7 +86,7 @@ const pens = [
 
 const dialogObserver = new Observer(null)
 
-const DialogContainer = ({}) => {
+const DialogContainer = () => {
   const [dialog,setDialog] = useState(dialogObserver.get())
   useEffect(()=>{
     const onChange = (val) => setDialog(val)
@@ -115,7 +111,7 @@ const DialogContainer = ({}) => {
     {dialog}
   </div>
 }
-const PopupContainer = ({}) => {
+const PopupContainer = () => {
   const style = {
     display:"none"
   }
@@ -206,9 +202,6 @@ function exportPNG() {
   })
 }
 
-function showPicker() {
-  dialogObserver.set(<Dragger><HSLPicker/></Dragger>)
-}
 
 let undoBackup = null
 let redoBackup = null

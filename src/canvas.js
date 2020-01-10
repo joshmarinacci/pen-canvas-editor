@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {Point} from './util.js'
 import {generateBrush} from './pens.js'
-import {clearCanvas, cloneCanvas} from "./util";
 
 const HIDPI_FACTOR = 0.5
 const TILE_SIZE = 256
