@@ -139,13 +139,26 @@ export class Layer {
         return layer
     }
 
-    toDataURL(type) {
-        const canvas = document.createElement('canvas')
-        canvas.width = this.width
-        canvas.height = this.height
-        const c = canvas.getContext('2d')
-        this.drawSelf(c)
-        return canvas.toDataURL(type)
+    tilesToDataURLs(type) {
+        return this.tiles.map(tiles =>{
+            return tiles.map((tile)=>{
+                if(tile.empty()) return null
+                return tile.canvas.toDataURL(type)
+            })
+        })
+    }
+    loadTiles(tiles) {
+        return new Promise((res,rej)=>{
+            this.forAllTiles((nt,i,j)=>{
+                const ot = tiles[i][j]
+                if(ot) {
+                    const img = new Image()
+                    img.onload = () => nt.getCanvas().getContext('2d').drawImage(img,0,0)
+                    img.src = ot
+                }
+            })
+            res(this)
+        })
     }
 }
 

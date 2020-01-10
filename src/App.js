@@ -73,7 +73,7 @@ const PopupContainer = () => {
 }
 
 
-const doc = {
+const realDoc = {
   title:"my first doc",
   width:DW,
   height:DH,
@@ -85,7 +85,6 @@ const doc = {
 }
 
 const storage = new Storage()
-const docObserver = new Observer(doc)
 
 
 let undoBackup = null
@@ -94,7 +93,7 @@ let redoBackup = null
 function App() {
   const [pens,setPens] = useState(allPens)
   const [counter,setCounter] = useState(0)
-  const [doc,setDoc] = useState(docObserver.get())
+  const [doc,setDoc] = useState(realDoc)
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(allPens[0])
   const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
@@ -104,14 +103,6 @@ function App() {
 
   let layers = doc.layers.slice().reverse()
 
-  useEffect(()=>{
-    const onChange = (val)=> {
-      setDoc(val)
-      setLayer(val.layers[0])
-    }
-    docObserver.addEventListener(onChange)
-    return ()=> docObserver.removeEventListener(onChange)
-  })
 
   const onPenDraw = () =>{
     const existing = colors.find(c => c.hue === color.hue && c.sat === color.sat && c.lit === color.lit)
@@ -132,11 +123,14 @@ function App() {
   const redraw = ()=>setCounter(counter+1)
   const dm = useContext(DialogContext)
   const showLoadDocDialog = () => {
-    storage.list().then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={setDoc}/>))
+    storage.list().then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
+      setDoc(doc)
+      setLayer(doc.layers[0])
+    }}/>))
   }
   const saveDoc = () => {
-    storage.save(docObserver.get()).then(()=>{
-      console.log("done saving",docObserver.get())
+    storage.save(doc).then(()=>{
+      console.log("done saving",doc)
     })
   }
   const clearStorage = () => {
@@ -145,10 +139,10 @@ function App() {
     })
   }
   const exportPNG = () => {
-    storage.exportToPNGURL(docObserver.get()).then((url)=>{
+    storage.exportToPNGURL(doc).then((url)=>{
       const a = document.createElement('a')
       a.href = url
-      a.download = docObserver.get().title + ".png"
+      a.download = doc.title + ".png"
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)

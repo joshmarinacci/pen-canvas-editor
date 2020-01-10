@@ -3,6 +3,7 @@
 
 import React, {useContext} from "react";
 import {DialogContext, HBox, Spacer, VBox} from "./util";
+import {Layer} from "./layers";
 
 export class Storage {
     async save(doc) {
@@ -52,23 +53,9 @@ export class Storage {
     JSONToDoc(json) {
         function layerToCanvas(layer) {
             return new Promise((res,rej) =>{
-                let newLayer = {
-                    type: layer.type,
-                    title: layer.title,
-                    width: layer.width,
-                    height: layer.height,
-                    visible: layer.visible,
-                }
-                const canvas = document.createElement('canvas')
-                canvas.width = layer.width
-                canvas.height = layer.height
-                const img = new Image(layer.width, layer.height)
-                img.onload = () => {
-                    canvas.getContext('2d').drawImage(img, 0, 0)
-                    newLayer.canvas = canvas
-                    res(newLayer)
-                }
-                img.src = layer.data
+                let newLayer = new Layer(layer.width,layer.height,layer.title)
+                newLayer.visible = layer.visible
+                newLayer.loadTiles(layer.tiles).then(()=>  res(newLayer))
             })
         }
 
@@ -101,7 +88,7 @@ export class Storage {
                 height: layer.height,
                 visible: layer.visible,
                 //no canvas
-                data: layer.toDataURL('png')
+                tiles: layer.tilesToDataURLs('png')
             }
         })
         return d2
@@ -176,7 +163,6 @@ export const ListDocsDialog = ({docs, storage, setDoc}) =>{
                                  storage.load(doc.id).then(doc => {
                                      dm.hide()
                                      setDoc(doc)
-                                     // docObserver.set(doc)
                                  })
                              }}>
                     <label>{doc.title}</label>
