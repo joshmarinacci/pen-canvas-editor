@@ -143,6 +143,8 @@ export class PenCanvas extends Component {
         super(props)
         this.pressed = false
         this.prev = null
+        this.scratchLayer = new Layer(1024,1024,'scratch')
+        this.drawingLayer = new Layer(1024,1024,'pen-layer')
         this.drawingLayerVisible = false
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
@@ -178,7 +180,7 @@ export class PenCanvas extends Component {
             for (let i = 0; i < dist; i += gap) {
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
-                this.getDrawingLayer().stamp(brush,x-radius,y-radius,pen.flow,1.0,'src-over')
+                this.drawingLayer.stamp(brush,x-radius,y-radius,pen.flow,1.0,'src-over')
             }
             this.lastPoint = currentPoint
             this.redraw()
@@ -251,30 +253,21 @@ export class PenCanvas extends Component {
     }
 
     prepDrawingLayer() {
-        this.getDrawingLayer().clear()
-        this.getScratchLayer().clear()
+        this.drawingLayer.clear()
+        this.scratchLayer.clear()
         this.drawingLayerVisible = true
-    }
-
-    getDrawingLayer() {
-        if(!this.drawingLayer) {
-            const cl = this.currentLayer()
-            this.drawingLayer = new Layer(cl.width,cl.height,'temp-drawing-layer')
-        }
-        return this.drawingLayer
     }
 
     drawLayer(c, layer) {
         if(!layer.visible) return
         if(layer === this.currentLayer() && this.drawingLayerVisible) {
-            const scratch = this.getScratchLayer()
-            scratch.clear()
-            scratch.drawLayer(layer)
+            this.scratchLayer.clear()
+            this.scratchLayer.drawLayer(layer)
             let blend = 'src-atop'
             if(this.currentPen().blend === 'erase') blend = "destination-out"
-            scratch.drawLayer(this.getDrawingLayer(),1.0,blend)
+            this.scratchLayer.drawLayer(this.drawingLayer,1.0,blend)
             c.globalAlpha = this.currentPen().opacity
-            scratch.drawSelf(c)
+            this.scratchLayer.drawSelf(c)
             return
         }
         layer.drawSelf(c)
@@ -284,14 +277,10 @@ export class PenCanvas extends Component {
         const before = this.currentLayer().makeClone()
         let blend = 'src-atop'
         if(this.currentPen().blend === 'erase') blend = "destination-out"
-        this.currentLayer().drawLayer(this.getDrawingLayer(),this.currentPen().opacity,blend)
+        this.currentLayer().drawLayer(this.drawingLayer,this.currentPen().opacity,blend)
         if(this.props.onDrawDone) this.props.onDrawDone(before)
         this.drawingLayerVisible = false
         this.redraw()
     }
 
-    getScratchLayer() {
-        if(!this.scratchLayer) this.scratchLayer = new Layer(1024,1024,'scratch')
-        return this.scratchLayer
-    }
 }
