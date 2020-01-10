@@ -116,7 +116,7 @@ export class Storage {
             ctx.fillStyle = 'white'
             ctx.fillRect(0, 0, w, h)
             doc.layers.forEach(layer => {
-                if(layer.visible) ctx.drawImage(layer.canvas, 0, 0)
+                if(layer.visible) layer.drawSelf(ctx)
             })
             let url = canvas.toDataURL()
             url = url.replace(/^data:image\/png/, 'data:application/octet-stream')
