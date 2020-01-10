@@ -9,6 +9,7 @@ import {toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
+import {PenEditor} from "./pens";
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
@@ -37,19 +38,21 @@ const RecentColors = ({colors, color, onSelect}) => {
   </div>
 };
 // the list of customized pens
-const pens = [
+const allPens = [
   {
     type:'pen',
     title:'giant',
     opacity:1.0,
+    hardness:0.0,
     flow:0.5,
     color:0xFF0000,
-    radius:50, //in pixels
+    radius:32, //in pixels
     blend:'overlay',
   },
   {
     type:'pen',
     title:'fat',
+    hardness:0.5,
     opacity:1.0,
     flow:0.5,
     color:0xFF0000,
@@ -60,6 +63,7 @@ const pens = [
     type:'pen',
     title:'medium',
     opacity:1.0,
+    hardness:0.5,
     flow:0.5,
     color:0xFF0000,
     radius:5, //in pixels
@@ -68,6 +72,7 @@ const pens = [
   {
     type:'pen',
     title:'thin',
+    hardness:0.5,
     opacity: 1.0,
     flow: 0.5,
     color: 0x000000,
@@ -76,6 +81,7 @@ const pens = [
   {
     type:'pen',
     title:'eraser',
+    hardness:0.5,
     opacity: 1.0,
     flow: 1.0,
     color: 0x000000,
@@ -205,10 +211,11 @@ let undoBackup = null
 let redoBackup = null
 
 function App() {
+  const [pens,setPens] = useState(allPens)
   const [counter,setCounter] = useState(0)
   const [doc,setDoc] = useState(docObserver.get())
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
-  const [pen,setPen] = useState(pens[0])
+  const [pen,setPen] = useState(allPens[0])
   const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
   const [layer,setLayer] = useState(doc.layers[0])
   const [zoom,setZoom] = useState(0)
@@ -262,6 +269,16 @@ function App() {
     redoBackup = null
     redraw()
   };
+  let closeBrushDialog = (newPen) => {
+    setPens(pens.map((p)=>{
+      if(p === pen) return newPen
+      return p
+    }))
+    setPen(newPen)
+    dialogObserver.set(null)
+  }
+  let showBrushDialog = ()=> dialogObserver.set(<PenEditor startPen={pen} onClose={closeBrushDialog}/>)
+
   return <div id={"main"}>
       <Toolbox className="top-row full-width">
         <button onClick={saveDoc} ><Save/></button>
@@ -276,7 +293,7 @@ function App() {
         <button onClick={zoomOut}><ZoomOut/></button>
       </Toolbox>
       <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
-      <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color}/>
+      <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={showBrushDialog}/>
       <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
       <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
       <Toolbox className="bottom-row full-width">

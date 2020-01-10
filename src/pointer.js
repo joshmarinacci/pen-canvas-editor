@@ -92,3 +92,21 @@ export class PointerHandler {
     }
 
 }
+
+export function brushPath(ctx,pen,color,start,end) {
+    let dist = start.dist(end)
+    let radius = pen.radius
+    let gap = radius/3
+    let angle = angleBetween(start, end);
+    let brush = generateBrush(pen,color)
+    let x = 0
+    let y = 0
+
+    for (let i = 0; i < dist; i += gap) {
+        x = start.x + (Math.sin(angle) * i);
+        y = start.y + (Math.cos(angle) * i);
+        ctx.globalAlpha = pen.flow
+        ctx.globalCompositeOperation = 'src-over'
+        ctx.drawImage(brush,x-radius,y-radius)
+    }
+}
