@@ -3,6 +3,11 @@ import {Layer} from "./layers";
 import {Point} from "./util";
 import {HIDPI_FACTOR} from "./common";
 
+function angleBetween(point1, point2) {
+    return Math.atan2(point2.x - point1.x, point2.y - point1.y);
+}
+
+
 export class PointerHandler {
     constructor() {
         this.pressed = false
@@ -12,10 +17,11 @@ export class PointerHandler {
         this.drawingLayer = new Layer(1024,1024,'pen-layer')
         this.drawingLayerVisible = false
     }
-    reset(layer,zoom,pen,color) {
+    reset(layer,zoom,pen,eraser,color) {
         this.layer = layer
         this.zoom = zoom
         this.pen = pen
+        this.eraser = eraser
         this.color = color
     }
     pointerDown(e) {
@@ -59,14 +65,9 @@ export class PointerHandler {
         if(!this.pressed) return
         const currentPoint = this.getPoint(e)
 
-        function angleBetween(point1, point2) {
-            return Math.atan2(point2.x - point1.x, point2.y - point1.y);
-        }
-
-
         let dist = this.lastPoint.dist(currentPoint)
         let pen = this.pen
-        if((e.buttons & 32)>>5 >0) pen = this.currentEraserPen()
+        if((e.buttons & 32)>>5 >0) pen = this.eraser
         let radius = pen.radius
         let gap = radius/3
         let angle = angleBetween(this.lastPoint, currentPoint);
@@ -84,13 +85,10 @@ export class PointerHandler {
 
     pointerUp(e) {
         this.pressed = false
-        this.mergeDrawingLayer()
-    }
-
-    mergeDrawingLayer() {
         let blend = 'src-atop'
         if (this.pen.blend === 'erase') blend = "destination-out"
         this.layer.drawLayer(this.drawingLayer, this.pen.opacity, blend)
         this.drawingLayerVisible = false
     }
+
 }

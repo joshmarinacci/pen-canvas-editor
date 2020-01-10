@@ -93,6 +93,9 @@ export class Layer {
         let ex = Math.floor((x+brush.width)/TILE_SIZE)+1
         let ey = Math.floor((y+brush.height)/TILE_SIZE)+1
         // console.log(`drawing ${sx}-${ex} ${sy}-${ey}  for ${x},${y}`)
+        //make sure indexes are valid
+        sx = Math.max(sx,0)
+        sy = Math.max(sy,0)
         ex = Math.min(ex,this.tiles.length)
         ey = Math.min(ey,this.tiles[0].length)
         //stamp onto the selected tiles

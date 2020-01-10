@@ -10,7 +10,11 @@ export class PenCanvas extends Component {
             if(e.pointerType === 'touch') return
             if(!this.currentLayer().visible) return console.warn("cant draw to a hidden layer")
             this.canvas.style.cursor = 'none'
-            this.pointerHandler.reset(this.props.layer,this.props.zoom, this.currentPen(), this.props.color)
+            this.pointerHandler.reset(this.props.layer,
+                this.props.zoom,
+                this.currentPen(),
+                this.currentEraserPen(),
+                this.props.color)
             this.pointerHandler.pointerDown(e)
             if(this.props.onPenDraw) this.props.onPenDraw()
             this.redraw()
