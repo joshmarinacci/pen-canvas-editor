@@ -7,8 +7,7 @@ import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
 import {toDeg} from "./util";
 import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
-import {LayerWrapper} from "./layers";
-import {Layer} from "./canvas";
+import {Layer, LayerWrapper} from "./layers";
 
 // a button just showing a color, no textf
 const ColorButton = ({color, caption, onClick, selected}) => {
