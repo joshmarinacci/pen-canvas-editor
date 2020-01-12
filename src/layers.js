@@ -156,9 +156,7 @@ export class Layer {
                     img.crossOrigin = "Anonymous"
                     img.onload = () => {
                         const ctx = nt.getCanvas().getContext('2d')
-                        ctx.fillStyle = 'red'
-                        ctx.fillRect(0,0,10,10)
-                        //ctx.drawImage(img,0,0)
+                        ctx.drawImage(img,0,0)
                     }
                     img.src = ot
                 }
