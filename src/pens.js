@@ -47,7 +47,6 @@ export const PenEditor = ({startPen,onClose}) => {
         brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,30), new Point(200-30,200-30))
         brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,200-30), new Point(200-30,30))
         s.restore()
-
     })
     return <VBox className={'dialog'}>
         <header>edit pens</header>

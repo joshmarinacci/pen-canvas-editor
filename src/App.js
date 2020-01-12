@@ -13,7 +13,7 @@ import {DialogContainer, DocStats} from "./util";
 import {ListDocsDialog} from "./storage";
 
 // the list of customized pens
-const allPens = [
+let allPens = [
   {
     type:'pen',
     title:'giant',
@@ -91,6 +91,7 @@ let undoBackup = null
 let redoBackup = null
 
 function App() {
+  const [first,setFirst] = useState(true)
   const [pens,setPens] = useState(allPens)
   const [counter,setCounter] = useState(0)
   const [doc,setDoc] = useState(realDoc)
@@ -104,6 +105,12 @@ function App() {
   let layers = doc.layers.slice().reverse()
 
 
+  if(first) {
+    storage.loadPens()
+        .then(pens => setPens(pens))
+        .catch(()=>{ console.log("pens not saved yet. using default pens")  })
+    setFirst(false)
+  }
   const onPenDraw = () =>{
     const existing = colors.find(c => c.hue === color.hue && c.sat === color.sat && c.lit === color.lit)
     if(!existing) {
@@ -142,6 +149,7 @@ function App() {
     storage.exportToPNGURL(doc).then((url)=>{
       const a = document.createElement('a')
       a.href = url
+      console.log("saving url",url)
       a.download = doc.title + ".png"
       document.body.appendChild(a)
       a.click()
@@ -169,11 +177,13 @@ function App() {
     redraw()
   };
   const updatePenSettings = (newPen) => {
-    setPens(pens.map((p)=>{
+    let newPens = pens.map((p)=>{
       if(p === pen) return newPen
       return p
-    }))
+    })
+    setPens(newPens)
     setPen(newPen)
+    storage.savePens(newPens).then(()=>console.log("saved the pens"))
   }
 
   return <div id={"main"}>

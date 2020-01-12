@@ -5,6 +5,7 @@ import React, {useContext} from "react";
 import {DialogContext, HBox, Spacer, VBox} from "./util";
 import {Layer} from "./layers";
 
+const PENS_STORAGE_KEY = "PENS_STORAGE_KEY"
 export class Storage {
     async save(doc) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
@@ -41,6 +42,7 @@ export class Storage {
     clear() {
         return Promise.resolve(localStorage.clear())
     }
+
 
     //loads the actual JSON to an object graph
     load(id) {
@@ -145,6 +147,17 @@ export class Storage {
             res(url)
         })
     }
+
+    async savePens(pens) {
+        const str = JSON.stringify(pens)
+        localStorage.setItem(PENS_STORAGE_KEY, str)
+    }
+    async loadPens() {
+        const str = localStorage.getItem(PENS_STORAGE_KEY)
+        if(str) return JSON.parse(str)
+        throw new Error("no pens")
+    }
+
 }
 
 const DocThumbnail = ({doc}) => {
