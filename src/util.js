@@ -193,16 +193,15 @@ export const DocStats = ({doc}) => {
 
 export function forceDownloadDataURL(name, url) {
     const a = document.createElement('a')
-    var binStr = atob(url.split(',')[1]),
-            len = binStr.length,
-            arr = new Uint8Array(len);
+    a.href = url
+    a.download = name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+}
 
-    for (var i = 0; i < len; i++) {
-        arr[i] = binStr.charCodeAt(i);
-    }
-
-    const blob = new Blob([arr])
-
+export function forceDownloadBlob(name,blob) {
+    const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = name
     document.body.appendChild(a)

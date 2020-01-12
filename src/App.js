@@ -9,7 +9,7 @@ import {Save, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
-import {DialogContainer, DocStats, DownloadDialog, forceDownloadDataURL} from "./util";
+import {DialogContainer, DocStats, DownloadDialog, forceDownloadBlob, forceDownloadDataURL} from "./util";
 import {ListDocsDialog, UploadDocDialog} from "./storage";
 import {SettingsDialog} from "./settings";
 
@@ -147,17 +147,7 @@ function App() {
   }
   const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
   const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
-  const exportPNG = (e) => {
-    //e.preventDefault()
-    console.log("e.target",e.target)
-    const target = e.target
-    storage.exportToPNGURL(doc).then((url)=>{
-      console.log("setting href of e")
-      target.download = 'somedoc.png'
-      target.href = url
-      //showDownloadDialog(doc.title+'.png',url)
-    })
-  }
+  const exportPNG = (e) => storage.docToPNGBlob(doc).then((blob)=>  forceDownloadBlob(doc.title+'.png',blob))
 
   const undo = () => {
     redoBackup = layer.makeClone()
@@ -193,7 +183,7 @@ function App() {
           <button onClick={showSettings}><Settings/></button>
           <button onClick={saveDoc} ><Save/></button>
           <button onClick={showLoadDocDialog}>open</button>
-          <a href="" onClick={exportPNG}><Download/>PNG</a>
+          <button onClick={exportPNG}><Download/>PNG</button>
           <button onClick={saveJSON}><Download/>JSON</button>
           <button onClick={uploadJSON}><Upload/>JSON</button>
           <Spacer/>

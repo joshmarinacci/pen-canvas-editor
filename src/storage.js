@@ -104,7 +104,7 @@ export class Storage {
         return d2
     }
 
-    exportToPNGURL(doc) {
+    docToPNGBlob(doc) {
         return new Promise((res, rej) => {
             const canvas = document.createElement('canvas')
             const w = doc.width
@@ -118,9 +118,9 @@ export class Storage {
             doc.layers.forEach(layer => {
                 if(layer.visible) layer.drawSelf(ctx)
             })
-            let url = canvas.toDataURL()
-            url = url.replace(/^data:image\/png/, 'data:application/octet-stream')
-            res(url)
+            canvas.toBlob((blob)=>{
+                res(blob)
+            },'image/png')
         })
     }
 
