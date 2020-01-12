@@ -8,7 +8,7 @@ canvas {
 
 #main {
   display: grid;
-  grid-template-columns: 64px 1fr 200px;
+  grid-template-columns: 68px 1fr 200px;
   grid-template-rows: 2em 2em 1fr 2em;
   border: 0px solid red;
   position: fixed;
@@ -108,8 +108,19 @@ canvas {
 }
 
 
-
-canvas.brush {
+.brush {
+  border: 2px solid #f0f0f0;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+}
+.brush.selected {
+  border: 2px solid black;
+}
+.brush canvas {
   width: 64px;
   height: 64px;
+}
+.brush label {
+  text-align: center;
 }

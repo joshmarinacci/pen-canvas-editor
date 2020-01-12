@@ -116,12 +116,11 @@ export const PenView = ({pen,color, onSelect, selected}) => {
         c.fillRect(0,0,w,h)
         const brush = generateBrush(pen,color)
         c.drawImage(brush,w/2-pen.radius,h/2-pen.radius)
-        const l = 4
-        c.lineWidth = l
-        c.strokeStyle = (pen === selected) ? '#000' : '#ddd'
-        c.strokeRect(l/2,l/2,w-l,h-l)
     })
-    return <canvas className={'brush'} width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
+    return <div className={'brush'+((pen===selected)?" selected":"")}>
+        <canvas width={64} height={64} ref={canvas}  onClick={()=>onSelect(pen)}/>
+        <label>{pen.title}</label>
+    </div>
 }
 
 export const RecentPens = ({pens, selected, onSelect, onChange, color, onEdit}) => {
