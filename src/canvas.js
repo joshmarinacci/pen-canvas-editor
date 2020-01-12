@@ -62,7 +62,7 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
-        // console.time('draw')
+        console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
         const cw = this.props.doc.width*scale
         const ch = this.props.doc.height*scale
@@ -81,7 +81,7 @@ export class PenCanvas extends Component {
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
         this.props.doc.layers.forEach(layer => this.drawLayer(c,layer))
         c.restore()
-        // console.timeEnd('draw')
+        console.timeEnd('draw')
     }
 
     currentLayer() {
