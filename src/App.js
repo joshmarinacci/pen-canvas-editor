@@ -9,7 +9,7 @@ import {Save, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
-import {DialogContainer, DocStats, forceDownloadDataURL} from "./util";
+import {DialogContainer, DocStats, DownloadDialog, forceDownloadDataURL} from "./util";
 import {ListDocsDialog, UploadDocDialog} from "./storage";
 import {SettingsDialog} from "./settings";
 
@@ -146,7 +146,8 @@ function App() {
         .then(url => forceDownloadDataURL(name,url))
   }
   const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
-  const exportPNG = () => storage.exportToPNGURL(doc).then((url)=>forceDownloadDataURL(doc.title+'.png',url))
+  const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
+  const exportPNG = () => storage.exportToPNGURL(doc).then((url)=>showDownloadDialog(doc.title+'.png',url))
 
   const undo = () => {
     redoBackup = layer.makeClone()

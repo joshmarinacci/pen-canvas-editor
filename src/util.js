@@ -196,7 +196,26 @@ export function forceDownloadDataURL(name, url) {
     a.href = url
     a.setAttribute('target','_blank')
     a.download = name
-    document.body.appendChild(a)
+   document.body.appendChild(a)
     a.click()
-    document.body.removeChild(a)
+   document.body.removeChild(a)
+}
+
+
+export const DownloadDialog = ({name,url}) => {
+    const dm = useContext(DialogContext)
+
+    const download = () => {
+        forceDownloadDataURL(name,url)
+    }
+    return <VBox className={'dialog'}>
+        <header>Dialog</header>
+        <VBox className={'body'}>
+            <button onClick={download}>download</button>
+        </VBox>
+        <footer>
+            <Spacer/>
+            <button onClick={()=>dm.hide()}>close</button>
+        </footer>
+    </VBox>
 }
