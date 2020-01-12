@@ -92,7 +92,7 @@ export class PointerHandler {
 export function brushPath(ctx,pen,color,start,end) {
     let dist = start.dist(end)
     let radius = pen.radius
-    let gap = radius/3
+    let gap = radius*pen.spacing
     let angle = angleBetween(start, end);
     let brush = generateBrush(pen,color)
     let x = 0

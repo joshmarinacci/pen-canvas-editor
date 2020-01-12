@@ -5,6 +5,11 @@ import {brushPath} from "./pointer";
 
 // panel that shows settings for a pen, let you customize them
 export const PenEditor = ({startPen,onClose}) => {
+    if(!('spacing' in startPen)) {
+        console.log("the pen is missing spacing")
+        startPen.spacing = 0.25
+    }
+
     const brushCanvas = useRef()
     const sampleCanvas = useRef()
     const [pen, setPen] = useState(startPen)
@@ -79,6 +84,11 @@ export const PenEditor = ({startPen,onClose}) => {
                         <label>opacity</label>
                         <input type="range" min={0} max={1000} value={pen.opacity*1000} onChange={updateStateFloat('opacity',0.001)}/>
                         <label>{(pen.opacity*100).toFixed(1)}%</label>
+                    </HBox>
+                    <HBox>
+                        <label>spacing</label>
+                        <input type="range" min={0} max={1000*3} value={pen.spacing*1000} onChange={updateStateFloat('spacing',0.001)}/>
+                        <label>{(pen.spacing*100).toFixed(1)}%</label>
                     </HBox>
                 </VBox>
                 <canvas ref={sampleCanvas} style={{width:200, height:200, border:'1px solid black'}}/>
