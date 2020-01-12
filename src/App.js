@@ -5,7 +5,7 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Save, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
+import {Save, File, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
@@ -73,16 +73,18 @@ const PopupContainer = () => {
   return <div style={style}></div>
 }
 
-
-const realDoc = {
-  title:"my first doc",
-  width:DW,
-  height:DH,
-  layers: [
-    new Layer(DW,DH,'bottom layer'),
-    new Layer(DW,DH,'middle layer'),
-    new Layer(DW,DH,'top layer'),
-  ]
+function makeNewDoc() {
+  const realDoc = {
+    title: "my first doc",
+    width: DW,
+    height: DH,
+    layers: [
+      new Layer(DW, DH, 'bottom layer'),
+      new Layer(DW, DH, 'middle layer'),
+      new Layer(DW, DH, 'top layer'),
+    ]
+  }
+  return realDoc
 }
 
 const storage = new Storage()
@@ -95,7 +97,7 @@ function App() {
   const [first,setFirst] = useState(true)
   const [pens,setPens] = useState(allPens)
   const [counter,setCounter] = useState(0)
-  const [doc,setDoc] = useState(realDoc)
+  const [doc,setDoc] = useState(makeNewDoc())
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(allPens[0])
   const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
@@ -138,6 +140,11 @@ function App() {
   }
   const showSettings = () => dm.show(<SettingsDialog storage={storage}/>)
   const saveDoc = () => storage.save(doc).then(()=> console.log("done saving",doc))
+  const newDoc = () => {
+    const doc = makeNewDoc()
+    setDoc(doc)
+    setLayer(doc.layers[0])
+  }
 
   const saveJSON = () => {
     const name = (doc.title+'.peneditor.json').replace(' ','_')
@@ -183,6 +190,7 @@ function App() {
           <button onClick={showSettings}><Settings/></button>
           <button onClick={saveDoc} ><Save/></button>
           <button onClick={showLoadDocDialog}>open</button>
+          <button onClick={newDoc}><File/></button>
           <button onClick={exportPNG}><Download/>PNG</button>
           <button onClick={saveJSON}><Download/>JSON</button>
           <button onClick={uploadJSON}><Upload/>JSON</button>
