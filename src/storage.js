@@ -7,6 +7,14 @@ import {Layer} from "./layers";
 
 const PENS_STORAGE_KEY = "PENS_STORAGE_KEY"
 export class Storage {
+
+    async exportJSONURL(doc) {
+        if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
+        const json = this.DocToJSON(doc)
+        const str = JSON.stringify(json,null,'  ')
+        return 'data:application/json;base64,'+btoa(str)
+    }
+
     async save(doc) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
         const json = this.DocToJSON(doc)
@@ -190,3 +198,16 @@ export const ListDocsDialog = ({docs, storage, setDoc}) =>{
 }
 
 
+export const UploadDocDialog = ({}) => {
+    const dm = useContext(DialogContext)
+    return <VBox className={'dialog'}>
+        <header>Open</header>
+        <VBox className={'body'}>
+            upload your file here
+        </VBox>
+        <footer>
+            <Spacer/>
+            <button onClick={()=>dm.hide()}>cancel</button>
+        </footer>
+    </VBox>
+}

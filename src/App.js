@@ -5,12 +5,13 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Save, Download, ZoomIn, ZoomOut} from "react-feather"
+import {Save, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
-import {DialogContainer, DocStats} from "./util";
-import {ListDocsDialog} from "./storage";
+import {DialogContainer, DocStats, forceDownloadDataURL} from "./util";
+import {ListDocsDialog, UploadDocDialog} from "./storage";
+import {SettingsDialog} from "./settings";
 
 // the list of customized pens
 let allPens = [
@@ -135,27 +136,17 @@ function App() {
       setLayer(doc.layers[0])
     }}/>))
   }
-  const saveDoc = () => {
-    storage.save(doc).then(()=>{
-      console.log("done saving",doc)
-    })
+  const showSettings = () => dm.show(<SettingsDialog storage={storage}/>)
+  const saveDoc = () => storage.save(doc).then(()=> console.log("done saving",doc))
+
+  const saveJSON = () => {
+    const name = (doc.title+'.peneditor.json').replace(' ','_')
+    storage
+        .exportJSONURL(doc)
+        .then(url => forceDownloadDataURL(name,url))
   }
-  const clearStorage = () => {
-    storage.clear().then(()=>{
-      console.log('everything is cleared')
-    })
-  }
-  const exportPNG = () => {
-    storage.exportToPNGURL(doc).then((url)=>{
-      const a = document.createElement('a')
-      a.href = url
-      console.log("saving url",url)
-      a.download = doc.title + ".png"
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    })
-  }
+  const uploadJSON = () => dm.show(<UploadDocDialog/>)
+  const exportPNG = () => storage.exportToPNGURL(doc).then((url)=>forceDownloadDataURL(doc.title+'.png',url))
 
   const undo = () => {
     redoBackup = layer.makeClone()
@@ -188,15 +179,18 @@ function App() {
 
   return <div id={"main"}>
         <Toolbox className="top-row full-width">
+          <button onClick={showSettings}><Settings/></button>
           <button onClick={saveDoc} ><Save/></button>
           <button onClick={showLoadDocDialog}>open</button>
-          <button onClick={clearStorage}>clear</button>
-          <button onClick={exportPNG}><Download/></button>
+          <button onClick={exportPNG}><Download/>PNG</button>
+          <button onClick={saveJSON}><Download/>JSON</button>
+          <button onClick={uploadJSON}><Upload/>JSON</button>
           <Spacer/>
           <button onClick={undo} disabled={undoBackup === null}>undo</button>
           <button onClick={redo} disabled={redoBackup === null}>redo</button>
           <Spacer/>
           <button onClick={zoomIn}><ZoomIn/></button>
+          <label>{Math.pow(2,zoom)*100}%</label>
           <button onClick={zoomOut}><ZoomOut/></button>
         </Toolbox>
         <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
@@ -206,8 +200,8 @@ function App() {
         <Toolbox className="bottom-row full-width">
           <RecentColors colors={colors} onSelect={setColor} color={color}/>
         </Toolbox>
-      <Dragger x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
-      <Dragger x={600} y={400}><DocStats doc={doc}/></Dragger>
+      <Dragger title="HSL Color" x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
+      <Dragger title="debug" x={600} y={400}><DocStats doc={doc}/></Dragger>
       <DialogContainer/>
       <PopupContainer/>
   </div>

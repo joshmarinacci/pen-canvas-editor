@@ -69,7 +69,7 @@ export class Dragger extends Component {
                     touchAction:'none',
                 }}
                 onPointerDown={this.doDown}>
-                <label>HSL Color</label>
+                <label>{this.props.title}</label>
                 <button onClick={()=>this.setState({visible:false})}>x</button>
             </div>
             {this.props.children}

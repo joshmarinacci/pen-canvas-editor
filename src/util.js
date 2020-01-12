@@ -183,8 +183,20 @@ export const DocStats = ({doc}) => {
     return <div style={{
         background:'white'
     }}>
+        <p>doc size {doc.width}x{doc.height}</p>
         <p>layer count = {doc.layers.length}</p>
         <p>tile count = {tiles}</p>
         <p>filled tile count {filled}</p>
     </div>
+}
+
+
+export function forceDownloadDataURL(name, url) {
+    const a = document.createElement('a')
+    a.href = url
+    a.setAttribute('target','_blank')
+    a.download = name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
 }
