@@ -153,6 +153,7 @@ export class Layer {
                 const ot = tiles[i][j]
                 if(ot) {
                     const img = new Image()
+                    img.crossOrigin = "Anonymous"
                     img.onload = () => nt.getCanvas().getContext('2d').drawImage(img,0,0)
                     img.src = ot
                 }

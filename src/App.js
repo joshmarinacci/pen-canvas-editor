@@ -147,7 +147,17 @@ function App() {
   }
   const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
   const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
-  const exportPNG = () => storage.exportToPNGURL(doc).then((url)=>showDownloadDialog(doc.title+'.png',url))
+  const exportPNG = (e) => {
+    //e.preventDefault()
+    console.log("e.target",e.target)
+    const target = e.target
+    storage.exportToPNGURL(doc).then((url)=>{
+      console.log("setting href of e")
+      target.download = 'somedoc.png'
+      target.href = url
+      //showDownloadDialog(doc.title+'.png',url)
+    })
+  }
 
   const undo = () => {
     redoBackup = layer.makeClone()
@@ -183,7 +193,7 @@ function App() {
           <button onClick={showSettings}><Settings/></button>
           <button onClick={saveDoc} ><Save/></button>
           <button onClick={showLoadDocDialog}>open</button>
-          <button onClick={exportPNG}><Download/>PNG</button>
+          <a href="" onClick={exportPNG}><Download/>PNG</a>
           <button onClick={saveJSON}><Download/>JSON</button>
           <button onClick={uploadJSON}><Upload/>JSON</button>
           <Spacer/>

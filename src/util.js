@@ -194,11 +194,10 @@ export const DocStats = ({doc}) => {
 export function forceDownloadDataURL(name, url) {
     const a = document.createElement('a')
     a.href = url
-    a.setAttribute('target','_blank')
     a.download = name
-   document.body.appendChild(a)
+    document.body.appendChild(a)
     a.click()
-   document.body.removeChild(a)
+    document.body.removeChild(a)
 }
 
 

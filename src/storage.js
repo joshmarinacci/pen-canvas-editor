@@ -111,7 +111,7 @@ export class Storage {
             const h = doc.height
             canvas.width = w
             canvas.height = h
-            console.log("exporting", w, h)
+            console.log("exporting", w, h, doc.title)
             const ctx = canvas.getContext('2d')
             ctx.fillStyle = 'white'
             ctx.fillRect(0, 0, w, h)
