@@ -121,7 +121,7 @@ function App() {
     }
   }
 
-  const zoomIn = ()=>{
+  const zoomIn = ()=> {
     if(zoom < 3) setZoom(zoom+1)
   }
   const zoomOut = ()=>{
@@ -145,7 +145,7 @@ function App() {
         .exportJSONURL(doc)
         .then(url => forceDownloadDataURL(name,url))
   }
-  const uploadJSON = () => dm.show(<UploadDocDialog/>)
+  const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
   const exportPNG = () => storage.exportToPNGURL(doc).then((url)=>forceDownloadDataURL(doc.title+'.png',url))
 
   const undo = () => {

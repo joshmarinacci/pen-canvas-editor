@@ -124,3 +124,13 @@ canvas {
 .brush label {
   text-align: center;
 }
+
+
+.error-panel {
+  background: yellow;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}

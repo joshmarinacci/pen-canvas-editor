@@ -1,7 +1,7 @@
 // all methods return promises
 //stored docs also have low res thumbnails embedded
 
-import React, {useContext} from "react";
+import React, {useContext, useState} from "react";
 import {DialogContext, HBox, Spacer, VBox} from "./util";
 import {Layer} from "./layers";
 
@@ -198,12 +198,42 @@ export const ListDocsDialog = ({docs, storage, setDoc}) =>{
 }
 
 
-export const UploadDocDialog = ({}) => {
+export const UploadDocDialog = ({storage, setDoc}) => {
     const dm = useContext(DialogContext)
+    const [error,setError] = useState(null)
+    const changed = (e) => {
+        console.log("files",e.target.files)
+        for(let i=0; i<e.target.files.length; i++) {
+            const file = e.target.files.item(i)
+            console.log("loading the file",file)
+            if(file.type !== 'application/json') {
+                console.log("warning. not recognized as a JSON file")
+            }
+            const reader = new FileReader()
+            reader.onload = () => {
+                console.log("read the file as",reader.result)
+                try {
+                    const json = JSON.parse(reader.result)
+                    console.log("read the doc json",json)
+                    storage.JSONToDoc(json).then(doc=>{
+                        console.log("read the doc",doc)
+                        setDoc(doc)
+                    })
+                    dm.hide()
+                } catch (err) {
+                    console.log("error parsing",err)
+                    setError("Couldn't parse the JSON file")
+                }
+            }
+            reader.readAsText(file)
+        }
+    }
     return <VBox className={'dialog'}>
         <header>Open</header>
         <VBox className={'body'}>
             upload your file here
+            <input type='file' onChange={changed}/>
+            <div className={"error-panel " + ((error)?"visible":"hidden")}>{error?error:""}</div>
         </VBox>
         <footer>
             <Spacer/>
