@@ -15,10 +15,11 @@ export class Storage {
         return 'data:application/json;base64,'+btoa(str)
     }
 
-    async save(doc) {
+    async save(doc,colors) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
-        const json = this.DocToJSON(doc)
+        const json = this.DocToJSON(doc,colors)
         const thumb = await this.exportToThumbURL(doc)
+        console.log("storing",json)
         const str = JSON.stringify(json)
         localStorage.setItem(json.id, str)
         const index = await this.list()
@@ -38,7 +39,6 @@ export class Storage {
         }
 
         localStorage.setItem('index',JSON.stringify(index))
-        console.log("saved the index",index)
     }
 
     list() {
@@ -74,8 +74,10 @@ export class Storage {
             title: json.title,
             width: json.width,
             height: json.height,
-            layers: []
+            layers: [],
+            colors:[],
         }
+        if(json.colors) doc.colors = json.colors
         return Promise.all(json.layers.map(layer => layerToCanvas(layer))).then(layers=>{
             doc.layers = layers
             return doc
@@ -83,13 +85,14 @@ export class Storage {
     }
 
     //turns canvas objects into layer data
-    DocToJSON(doc) {
+    DocToJSON(doc,colors) {
         const d2 = {
             id:doc.id,
             title: doc.title,
             width: doc.width,
             height: doc.height,
         }
+        if(colors) d2.colors = JSON.parse(JSON.stringify(colors))
         d2.layers = doc.layers.map(layer => {
             return {
                 type: layer.type,

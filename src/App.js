@@ -82,6 +82,9 @@ function makeNewDoc() {
       new Layer(DW, DH, 'bottom layer'),
       new Layer(DW, DH, 'middle layer'),
       new Layer(DW, DH, 'top layer'),
+    ],
+    colors: [
+        {hue:1.0,sat:1.0,lit:0.5}
     ]
   }
   return realDoc
@@ -103,7 +106,7 @@ function App() {
   const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
   const [layer,setLayer] = useState(doc.layers[0])
   const [zoom,setZoom] = useState(0)
-  const [colors,setColors] = useState([{hue:0.4,sat:1.0,lit:0.5}])
+  const [colors,setColors] = useState(doc.colors)
 
   let layers = doc.layers.slice().reverse()
 
@@ -136,20 +139,22 @@ function App() {
     storage.list().then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
       setDoc(doc)
       setLayer(doc.layers[0])
+      setColors(doc.colors)
     }}/>))
   }
   const showSettings = () => dm.show(<SettingsDialog storage={storage}/>)
-  const saveDoc = () => storage.save(doc).then(()=> console.log("done saving",doc))
+  const saveDoc = () => storage.save(doc,colors).then(()=> console.log("done saving",doc))
   const newDoc = () => {
     const doc = makeNewDoc()
     setDoc(doc)
     setLayer(doc.layers[0])
+    setColors(doc.colors)
   }
 
   const saveJSON = () => {
     const name = (doc.title+'.peneditor.json').replace(' ','_')
     storage
-        .exportJSONURL(doc)
+        .exportJSONURL(doc,colors)
         .then(url => forceDownloadDataURL(name,url))
   }
   const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
