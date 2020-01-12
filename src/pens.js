@@ -18,6 +18,16 @@ export const PenEditor = ({startPen,onClose}) => {
             })
         }
     }
+    const updateStateString = (key) => {
+        return (e)=>{
+            const val = e.target.value
+            setPen(old => {
+                const obj = {...old}
+                obj[key] = val
+                return obj
+            })
+        }
+    }
     useEffect(()=>{
         const c = brushCanvas.current.getContext('2d')
         c.save()
@@ -44,6 +54,10 @@ export const PenEditor = ({startPen,onClose}) => {
         <VBox className={'body'}>
             <HBox>
                 <VBox>
+                    <HBox>
+                        <label>name</label>
+                        <input type="text" value={pen.title} onChange={updateStateString('title')}/>
+                    </HBox>
                     <HBox>
                         <canvas ref={brushCanvas} style={{border:'1px solid black'}} width={64} height={64}/>
                     </HBox>
