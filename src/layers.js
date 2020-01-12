@@ -154,7 +154,12 @@ export class Layer {
                 if(ot) {
                     const img = new Image()
                     img.crossOrigin = "Anonymous"
-                    img.onload = () => nt.getCanvas().getContext('2d').drawImage(img,0,0)
+                    img.onload = () => {
+                        const ctx = nt.getCanvas().getContext('2d')
+                        ctx.fillStyle = 'red'
+                        ctx.fillRect(0,0,10,10)
+                        //ctx.drawImage(img,0,0)
+                    }
                     img.src = ot
                 }
             })
