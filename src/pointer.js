@@ -21,6 +21,7 @@ export class PointerHandler {
         this.layer = layer
         this.zoom = zoom
         this.pen = pen
+        if(!('spacing' in this.pen)) this.pen.spacing = 0.25
         this.eraser = eraser
         this.color = color
     }
@@ -65,7 +66,7 @@ export class PointerHandler {
         let pen = this.pen
         if((e.buttons & 32)>>5 >0) pen = this.eraser
         let radius = pen.radius
-        let gap = radius/3
+        let gap = radius*pen.spacing
         let angle = angleBetween(this.lastPoint, currentPoint);
         let x = 0
         let y = 0
