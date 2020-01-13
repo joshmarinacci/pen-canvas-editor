@@ -1,14 +1,16 @@
 import React, {Component} from "react";
 import {PointerHandler} from "./pointer.js";
 import {HIDPI_FACTOR} from "./common.js"
+import {Point} from "./util";
 
 export class PenCanvas extends Component {
     constructor(props) {
         super(props)
+        this.cursor = new Point(100,100)
         this.pointerHandler = new PointerHandler()
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
-            if(!this.currentLayer().visible) return console.warn("cant draw to a hidden layer")
+            if(!this.currentLayer().visible) return console.warn("can't draw to a hidden layer")
             this.canvas.style.cursor = 'none'
             this.pointerHandler.reset(this.props.layer,
                 this.props.zoom,
@@ -19,18 +21,15 @@ export class PenCanvas extends Component {
                 )
             this.pointerHandler.pointerDown(e)
             if(this.props.onPenDraw) this.props.onPenDraw()
-            // this.redraw()
         }
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
-            this.pointerHandler.pointerMove(e)
-            // this.redraw()
+            this.pointerHandler.pointerMove(e,this.cursor)
         }
         this.pointerUp = (e) => {
             const before = this.currentLayer().makeClone()
             this.pointerHandler.pointerUp(e)
             if (this.props.onDrawDone) this.props.onDrawDone(before)
-            // this.redraw()
             this.canvas.style.cursor = 'auto'
         }
     }
@@ -83,6 +82,13 @@ export class PenCanvas extends Component {
         c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
         this.props.doc.layers.forEach(layer => this.drawLayer(c,layer))
+        if(this.cursor) {
+            c.strokeStyle = 'black'
+            const r = this.currentPen().radius;
+            c.beginPath()
+            c.arc(this.cursor.x,this.cursor.y,r,0,Math.PI*2)
+            c.stroke()
+        }
         c.restore()
         //console.timeEnd('draw')
     }

@@ -61,9 +61,10 @@ export class PointerHandler {
         return pt
     }
 
-    pointerMove(e) {
+    pointerMove(e, cursor) {
         if(!this.pressed) return
         let currentPoint = this.getPoint(e)
+        cursor.copyFrom(currentPoint)
         currentPoint = this.smoothPoint(currentPoint,this.lastPoint)
 
         let dist = this.lastPoint.dist(currentPoint)
@@ -95,9 +96,10 @@ export class PointerHandler {
     }
 
     smoothPoint(cp, lp) {
+        let a = 0.1
         return new Point(
-            (cp.x+lp.x)/2,
-            (cp.y+lp.y)/2
+            cp.x*(1-a) + lp.x*a,
+            cp.y*(1-a) + lp.y*a,
         )
     }
 }

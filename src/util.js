@@ -45,6 +45,10 @@ export class Point {
     copy() {
         return new Point(this.x, this.y)
     }
+    copyFrom(pt) {
+        this.x = pt.x
+        this.y = pt.y
+    }
     dist(pt) {
         let dx = this.x - pt.x
         let dy = this.y - pt.y
