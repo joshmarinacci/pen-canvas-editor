@@ -48,6 +48,7 @@ canvas {
 
 .toolbar {
   background: #ddd;
+  align-items: center;
 }
 
 
@@ -57,7 +58,7 @@ canvas {
 
 
 .toolbar button {
-  border: 1px solid #000;
+  border: 0px solid #000;
   background: #ddd;
 }
 .toolbar button:hover {

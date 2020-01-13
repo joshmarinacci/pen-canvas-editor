@@ -5,7 +5,7 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Save, File, Download, Upload, ZoomIn, ZoomOut, Settings} from "react-feather"
+import {Save, File, Download, Upload, ZoomIn, ZoomOut, Settings, RotateCcw, RotateCw} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
@@ -204,8 +204,8 @@ function App() {
           <button onClick={saveJSON}><Download/>JSON</button>
           <button onClick={uploadJSON}><Upload/>JSON</button>
           <Spacer/>
-          <button onClick={undo} disabled={undoBackup === null}>undo</button>
-          <button onClick={redo} disabled={redoBackup === null}>redo</button>
+          <button onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>
+          <button onClick={redo} disabled={redoBackup === null}><RotateCw/></button>
           <Spacer/>
           <button onClick={zoomIn}><ZoomIn/></button>
           <label>{Math.pow(2,zoom)*100}%</label>
