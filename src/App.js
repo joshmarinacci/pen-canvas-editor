@@ -5,7 +5,7 @@ import {PenCanvas} from "./canvas.js"
 import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Save, File, Download, Upload, ZoomIn, ZoomOut, Settings, RotateCcw, RotateCw} from "react-feather"
+import {Save, File, Folder, Download, Upload, ZoomIn, ZoomOut, Settings, RotateCcw, RotateCw} from "react-feather"
 import {Layer, LayerWrapper} from "./layers";
 import {DH, DW} from "./common";
 import {RecentColors} from "./colors";
@@ -198,7 +198,7 @@ function App() {
         <Toolbox className="top-row full-width">
           <button onClick={showSettings}><Settings/></button>
           <button onClick={saveDoc} ><Save/></button>
-          <button onClick={showLoadDocDialog}>open</button>
+          <button onClick={showLoadDocDialog}><Folder/></button>
           <button onClick={newDoc}><File/></button>
           <button onClick={exportPNG}><Download/>PNG</button>
           <button onClick={saveJSON}><Download/>JSON</button>
