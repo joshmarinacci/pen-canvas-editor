@@ -113,8 +113,12 @@ function App() {
 
   if(first) {
     storage.loadPens()
-        .then(pens => setPens(pens))
-        .catch(()=>{ console.log("pens not saved yet. using default pens")  })
+        .then(pens => {
+          if(pens) {
+            setPens(pens)
+            setPen(pens[0])
+          }
+        })
     setFirst(false)
   }
   const onPenDraw = () =>{

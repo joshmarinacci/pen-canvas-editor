@@ -4,9 +4,14 @@
 import React, {useContext, useState} from "react";
 import {DialogContext, HBox, Spacer, VBox} from "./util";
 import {Layer} from "./layers";
+import * as localforage from "localforage"
+
 
 const PENS_STORAGE_KEY = "PENS_STORAGE_KEY"
 export class Storage {
+    constructor() {
+        this.lf = localforage
+    }
 
     async exportJSONURL(doc) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
@@ -19,10 +24,9 @@ export class Storage {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
         const json = this.DocToJSON(doc,colors)
         const thumb = await this.exportToThumbURL(doc)
-        console.log("storing",json)
-        const str = JSON.stringify(json)
-        localStorage.setItem(json.id, str)
-        const index = await this.list()
+        await this.lf.setItem(json.id,json)
+        let index = await this.list()
+        if(!index) index = []
         let entry = index.find(d => d.id === json.id)
         if(!entry) {
             entry = {
@@ -37,30 +41,22 @@ export class Storage {
             height:64,
             data:thumb
         }
-
-        localStorage.setItem('index',JSON.stringify(index))
+        return this.lf.setItem('index',index)
     }
 
-    list() {
-        let indexStr = localStorage.getItem('index')
-        if(indexStr) return Promise.resolve(JSON.parse(indexStr))
-        return Promise.resolve([])
+    async list() {
+        return this.lf.getItem('index')
     }
-
-    clear() {
-        return Promise.resolve(localStorage.clear())
+    async clear() {
+        return this.lf.clear()
     }
-
-
-    //loads the actual JSON to an object graph
-    load(id) {
-        const str = localStorage.getItem(id)
-        const json = JSON.parse(str)
-        return this.JSONToDoc(json)
+    async load(id) {
+        return this.lf.getItem(id).then(json=>this.JSONToDoc(json))
     }
 
     //expands the layer data into actual canvas objects
     JSONToDoc(json) {
+        if(!json) return null
         function layerToCanvas(layer) {
             return new Promise((res,rej) =>{
                 let newLayer = new Layer(layer.width,layer.height,layer.title)
@@ -86,6 +82,7 @@ export class Storage {
 
     //turns canvas objects into layer data
     DocToJSON(doc,colors) {
+        if(!doc) return null
         const d2 = {
             id:doc.id,
             title: doc.title,
@@ -160,13 +157,10 @@ export class Storage {
     }
 
     async savePens(pens) {
-        const str = JSON.stringify(pens)
-        localStorage.setItem(PENS_STORAGE_KEY, str)
+        return this.lf.setItem(PENS_STORAGE_KEY,pens)
     }
     async loadPens() {
-        const str = localStorage.getItem(PENS_STORAGE_KEY)
-        if(str) return JSON.parse(str)
-        throw new Error("no pens")
+        return this.lf.getItem(PENS_STORAGE_KEY)
     }
 
 }
@@ -177,6 +171,7 @@ const DocThumbnail = ({doc}) => {
 }
 
 export const ListDocsDialog = ({docs, storage, setDoc}) =>{
+    if(!docs) docs = []
     const dm = useContext(DialogContext)
     return <VBox className={'dialog'}>
         <header>Open</header>
