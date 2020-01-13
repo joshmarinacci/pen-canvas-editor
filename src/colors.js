@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import {Point} from './util.js'
+import {VBox} from "./util";
 
 const w = 200
 const h = 200
@@ -175,8 +176,11 @@ export class HSLPicker extends Component {
                        style={{
                            padding: 0,
                            margin: 0,
-                           borderWidth: 0
+                           borderWidth: 0,
+                           gridRowStart: 3,
+                           alignSelf: 'end',
                        }}
+                       className={'right-column'}
                        ref={(c) => this.canvas = c}
                        onPointerDown={this.down}
                        onPointerMove={this.move}

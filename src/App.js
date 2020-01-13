@@ -96,6 +96,73 @@ const storage = new Storage()
 let undoBackup = null
 let redoBackup = null
 
+const ZoomControls = ({zoom, setZoom}) => {
+  const zoomIn = ()=> (zoom<3)?setZoom(zoom+1):''
+  const zoomOut = ()=> (zoom>-3)?setZoom(zoom-1):''
+  return [
+      <button onClick={zoomIn}><ZoomIn/></button>,
+      <label>{Math.pow(2,zoom)*100}%</label>,
+      <button onClick={zoomOut}><ZoomOut/></button>,
+    ]
+}
+const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer}) => {
+  const dm = useContext(DialogContext)
+
+  const saveDoc = () => storage.save(doc,colors).then(()=> console.log("done saving",doc))
+  const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
+
+  const showLoadDocDialog = () => {
+    storage.list()
+        .then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
+      setDoc(doc)
+      setLayer(doc.layers[0])
+      setColors(doc.colors)
+    }}/>))
+  }
+  const newDoc = () => {
+    const doc = makeNewDoc()
+    setDoc(doc)
+    setLayer(doc.layers[0])
+    setColors(doc.colors)
+  }
+
+  const saveJSON = () => {
+    const name = (doc.title+'.peneditor.json').replace(' ','_')
+    storage
+        .exportJSONURL(doc,colors)
+        .then(url => forceDownloadDataURL(name,url))
+  }
+  const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
+  const exportPNG = (e) => storage.docToPNGBlob(doc).then((blob)=>  forceDownloadBlob(doc.title+'.png',blob))
+  return [
+    <button onClick={saveDoc} ><Save/></button>,
+    <button onClick={showLoadDocDialog}><Folder/></button>,
+    <button onClick={newDoc}><File/></button>,
+    <button onClick={exportPNG}><Download/>PNG</button>,
+    <button onClick={saveJSON}><Download/>JSON</button>,
+    <button onClick={uploadJSON}><Upload/>JSON</button>,
+    ]
+}
+const UndoRedoControls = ({layer, redraw}) => {
+  const undo = () => {
+    redoBackup = layer.makeClone()
+    layer.clear()
+    layer.drawLayer(undoBackup)
+    undoBackup = null
+    redraw()
+  }
+  const redo = () => {
+    undoBackup = layer.makeClone()
+    layer.clear()
+    layer.drawLayer(redoBackup)
+    redoBackup = null
+    redraw()
+  }
+  return [
+    <button onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>,
+    <button onClick={redo} disabled={redoBackup === null}><RotateCw/></button>,
+    ]
+}
 function App() {
   const [first,setFirst] = useState(true)
   const [pens,setPens] = useState(allPens)
@@ -130,55 +197,9 @@ function App() {
     }
   }
 
-  const zoomIn = ()=> {
-    if(zoom < 3) setZoom(zoom+1)
-  }
-  const zoomOut = ()=>{
-    if(zoom > -3) setZoom(zoom-1)
-  }
-
   const redraw = ()=>setCounter(counter+1)
   const dm = useContext(DialogContext)
-  const showLoadDocDialog = () => {
-    storage.list().then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
-      setDoc(doc)
-      setLayer(doc.layers[0])
-      setColors(doc.colors)
-    }}/>))
-  }
-  const showSettings = () => dm.show(<SettingsDialog storage={storage}/>)
-  const saveDoc = () => storage.save(doc,colors).then(()=> console.log("done saving",doc))
-  const newDoc = () => {
-    const doc = makeNewDoc()
-    setDoc(doc)
-    setLayer(doc.layers[0])
-    setColors(doc.colors)
-  }
 
-  const saveJSON = () => {
-    const name = (doc.title+'.peneditor.json').replace(' ','_')
-    storage
-        .exportJSONURL(doc,colors)
-        .then(url => forceDownloadDataURL(name,url))
-  }
-  const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
-  const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
-  const exportPNG = (e) => storage.docToPNGBlob(doc).then((blob)=>  forceDownloadBlob(doc.title+'.png',blob))
-
-  const undo = () => {
-    redoBackup = layer.makeClone()
-    layer.clear()
-    layer.drawLayer(undoBackup)
-    undoBackup = null
-    redraw()
-  }
-  const redo = () => {
-    undoBackup = layer.makeClone()
-    layer.clear()
-    layer.drawLayer(redoBackup)
-    redoBackup = null
-    redraw()
-  }
   let onDrawDone = (before)=>{
     undoBackup = before
     redoBackup = null
@@ -196,20 +217,12 @@ function App() {
 
   return <div id={"main"}>
         <Toolbox className="top-row full-width">
-          <button onClick={showSettings}><Settings/></button>
-          <button onClick={saveDoc} ><Save/></button>
-          <button onClick={showLoadDocDialog}><Folder/></button>
-          <button onClick={newDoc}><File/></button>
-          <button onClick={exportPNG}><Download/>PNG</button>
-          <button onClick={saveJSON}><Download/>JSON</button>
-          <button onClick={uploadJSON}><Upload/>JSON</button>
+          <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
+          <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer}/>
           <Spacer/>
-          <button onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>
-          <button onClick={redo} disabled={redoBackup === null}><RotateCw/></button>
+          <UndoRedoControls layer={layer} redraw={redraw}/>
           <Spacer/>
-          <button onClick={zoomIn}><ZoomIn/></button>
-          <label>{Math.pow(2,zoom)*100}%</label>
-          <button onClick={zoomOut}><ZoomOut/></button>
+          <ZoomControls zoom={zoom} setZoom={setZoom}/>
         </Toolbox>
         <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
         <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={updatePenSettings}/>
@@ -218,7 +231,7 @@ function App() {
         <Toolbox className="bottom-row full-width">
           <RecentColors colors={colors} onSelect={setColor} color={color}/>
         </Toolbox>
-      <Dragger title="HSL Color" x={600} y={100}><HSLPicker color={color} onChange={setColor}/></Dragger>
+        <HSLPicker color={color} onChange={setColor}/>
       <Dragger title="debug" x={600} y={400}><DocStats doc={doc}/></Dragger>
       <DialogContainer/>
       <PopupContainer/>
