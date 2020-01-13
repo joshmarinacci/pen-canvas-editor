@@ -100,9 +100,9 @@ const ZoomControls = ({zoom, setZoom}) => {
   const zoomIn = ()=> (zoom<3)?setZoom(zoom+1):''
   const zoomOut = ()=> (zoom>-3)?setZoom(zoom-1):''
   return [
-      <button onClick={zoomIn}><ZoomIn/></button>,
-      <label>{Math.pow(2,zoom)*100}%</label>,
-      <button onClick={zoomOut}><ZoomOut/></button>,
+      <button key="zoomin" onClick={zoomIn}><ZoomIn/></button>,
+      <label key="label">{Math.pow(2,zoom)*100}%</label>,
+      <button key="zoomout" onClick={zoomOut}><ZoomOut/></button>,
     ]
 }
 const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer}) => {
@@ -135,12 +135,12 @@ const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer}) => {
   const uploadJSON = () => dm.show(<UploadDocDialog storage={storage} setDoc={setDoc}/>)
   const exportPNG = (e) => storage.docToPNGBlob(doc).then((blob)=>  forceDownloadBlob(doc.title+'.png',blob))
   return [
-    <button onClick={saveDoc} ><Save/></button>,
-    <button onClick={showLoadDocDialog}><Folder/></button>,
-    <button onClick={newDoc}><File/></button>,
-    <button onClick={exportPNG}><Download/>PNG</button>,
-    <button onClick={saveJSON}><Download/>JSON</button>,
-    <button onClick={uploadJSON}><Upload/>JSON</button>,
+    <button key="save" onClick={saveDoc} ><Save/></button>,
+    <button key="list" onClick={showLoadDocDialog}><Folder/></button>,
+    <button key="new" onClick={newDoc}><File/></button>,
+    <button key="png" onClick={exportPNG}><Download/>PNG</button>,
+    <button key="jsondown" onClick={saveJSON}><Download/>JSON</button>,
+    <button key="jsonup" onClick={uploadJSON}><Upload/>JSON</button>,
     ]
 }
 const UndoRedoControls = ({layer, redraw}) => {
@@ -159,10 +159,11 @@ const UndoRedoControls = ({layer, redraw}) => {
     redraw()
   }
   return [
-    <button onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>,
-    <button onClick={redo} disabled={redoBackup === null}><RotateCw/></button>,
+    <button key="undo" onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>,
+    <button key="redo" onClick={redo} disabled={redoBackup === null}><RotateCw/></button>,
     ]
 }
+
 function App() {
   const [first,setFirst] = useState(true)
   const [pens,setPens] = useState(allPens)
