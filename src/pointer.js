@@ -60,7 +60,8 @@ export class PointerHandler {
 
     pointerMove(e) {
         if(!this.pressed) return
-        const currentPoint = this.getPoint(e)
+        let currentPoint = this.getPoint(e)
+        currentPoint = this.smoothPoint(currentPoint,this.lastPoint)
 
         let dist = this.lastPoint.dist(currentPoint)
         let pen = this.pen
@@ -88,6 +89,12 @@ export class PointerHandler {
         this.drawingLayerVisible = false
     }
 
+    smoothPoint(cp, lp) {
+        return new Point(
+            (cp.x+lp.x)/2,
+            (cp.y+lp.y)/2
+        )
+    }
 }
 
 export function brushPath(ctx,pen,color,start,end) {
