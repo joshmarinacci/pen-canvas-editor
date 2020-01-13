@@ -16,14 +16,16 @@ export class PointerHandler {
         this.scratchLayer = new Layer(DW,DH,'scratch')
         this.drawingLayer = new Layer(DW,DH,'pen-layer')
         this.drawingLayerVisible = false
+        this.redraw = null
     }
-    reset(layer,zoom,pen,eraser,color) {
+    reset(layer,zoom,pen,eraser,color, redraw) {
         this.layer = layer
         this.zoom = zoom
         this.pen = pen
         if(!('spacing' in this.pen)) this.pen.spacing = 0.25
         this.eraser = eraser
         this.color = color
+        this.redraw = redraw
     }
     pointerDown(e) {
         const pt = this.getPoint(e)
@@ -32,6 +34,7 @@ export class PointerHandler {
         this.drawingLayer.clear()
         this.scratchLayer.clear()
         this.drawingLayerVisible = true
+        this.redraw()
     }
 
 
@@ -79,6 +82,7 @@ export class PointerHandler {
             this.drawingLayer.stamp(brush,x-radius,y-radius,pen.flow,1.0,'src-over')
         }
         this.lastPoint = currentPoint
+        this.redraw()
     }
 
     pointerUp(e) {
@@ -87,6 +91,7 @@ export class PointerHandler {
         if (this.pen.blend === 'erase') blend = "destination-out"
         this.layer.drawLayer(this.drawingLayer, this.pen.opacity, blend)
         this.drawingLayerVisible = false
+        this.redraw()
     }
 
     smoothPoint(cp, lp) {

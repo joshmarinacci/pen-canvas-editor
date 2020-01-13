@@ -14,21 +14,23 @@ export class PenCanvas extends Component {
                 this.props.zoom,
                 this.currentPen(),
                 this.currentEraserPen(),
-                this.props.color)
+                this.props.color,
+                ()=>this.redraw(),
+                )
             this.pointerHandler.pointerDown(e)
             if(this.props.onPenDraw) this.props.onPenDraw()
-            this.redraw()
+            // this.redraw()
         }
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
             this.pointerHandler.pointerMove(e)
-            this.redraw()
+            // this.redraw()
         }
         this.pointerUp = (e) => {
             const before = this.currentLayer().makeClone()
             this.pointerHandler.pointerUp(e)
             if (this.props.onDrawDone) this.props.onDrawDone(before)
-            this.redraw()
+            // this.redraw()
             this.canvas.style.cursor = 'auto'
         }
     }
@@ -62,6 +64,7 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
+        console.log('drawing')
         //console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
         const cw = this.props.doc.width*scale
