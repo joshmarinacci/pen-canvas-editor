@@ -105,10 +105,10 @@ const ZoomControls = ({zoom, setZoom}) => {
       <button key="zoomout" onClick={zoomOut}><ZoomOut/></button>,
     ]
 }
-const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer}) => {
+const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer, setDirty}) => {
   const dm = useContext(DialogContext)
 
-  const saveDoc = () => storage.save(doc,colors).then(()=> console.log("done saving",doc))
+  const saveDoc = () => storage.save(doc,colors).then(()=> setDirty(false))
   const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
 
   const showLoadDocDialog = () => {
@@ -169,6 +169,7 @@ function App() {
   const [pens,setPens] = useState(allPens)
   const [counter,setCounter] = useState(0)
   const [doc,setDoc] = useState(makeNewDoc())
+  const [dirty,setDirty] = useState(false)
   const [color,setColor] = useState({hue:0,  sat:1.0, lit:0.5})
   const [pen,setPen] = useState(allPens[0])
   const [eraser,setEraser] = useState(pens.find(p => p.blend === 'erase'))
@@ -190,6 +191,7 @@ function App() {
     setFirst(false)
   }
   const onPenDraw = () =>{
+    setDirty(true)
     const existing = colors.find(c => c.hue === color.hue && c.sat === color.sat && c.lit === color.lit)
     if(!existing) {
       let c2 = colors.slice()
@@ -216,10 +218,20 @@ function App() {
     storage.savePens(newPens).then(()=>console.log("saved the pens"))
   }
 
+  useEffect(()=>{
+    const id = setInterval(()=>{
+      if(dirty) {
+        storage.save(doc,colors).then(()=> setDirty(false))
+        console.log("auto saved")
+      }
+    },5*1000)
+    return ()=>clearInterval(id)
+  })
+
   return <div id={"main"}>
         <Toolbox className="top-row full-width">
           <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
-          <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer}/>
+          <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer} setDirty={setDirty}/>
           <Spacer/>
           <UndoRedoControls layer={layer} redraw={redraw}/>
           <Spacer/>
@@ -231,6 +243,8 @@ function App() {
         <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
         <Toolbox className="bottom-row full-width">
           <RecentColors colors={colors} onSelect={setColor} color={color}/>
+          <Spacer/>
+          {dirty?"*":""}
         </Toolbox>
         <HSLPicker color={color} onChange={setColor}/>
       <Dragger title="debug" x={600} y={400}><DocStats doc={doc}/></Dragger>
