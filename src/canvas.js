@@ -8,10 +8,14 @@ export class PenCanvas extends Component {
         super(props)
         this.cursor = new Point(100,100)
         this.pointerHandler = new PointerHandler()
+        this.penActive = false
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') return
+            if(e.pointerType === 'pen') this.penActive = true
+            e.preventDefault()
+            e.stopPropagation()
             if(!this.currentLayer().visible) return console.warn("can't draw to a hidden layer")
-            // this.canvas.style.cursor = 'none'
+            this.canvas.style.cursor = 'none'
             this.pointerHandler.reset(this.props.layer,
                 this.props.zoom,
                 this.currentPen(),
@@ -25,23 +29,30 @@ export class PenCanvas extends Component {
         }
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
+            e.preventDefault()
             this.cursor = this.getPoint(e)
             this.pointerHandler.pointerMove(e,this.cursor)
         }
         this.pointerUp = (e) => {
+            this.penActive = false
             const before = this.currentLayer().makeClone()
             this.cursor = this.getPoint(e)
             this.pointerHandler.pointerUp(e,this.cursor)
             if (this.props.onDrawDone) this.props.onDrawDone(before)
-            // this.canvas.style.cursor = 'auto'
+            this.canvas.style.cursor = 'auto'
+        }
+        this.pointerCancel = (e) => {
+            this.penActive = false
+            this.canvas.style.cursor = 'auto'
         }
     }
 
     getPoint(e) {
         const rect = e.target.getBoundingClientRect()
+        const style = window.getComputedStyle(e.target)
         let pt = new Point(
-            e.clientX - rect.left,
-            e.clientY - rect.top
+            e.clientX - rect.left - parseInt(style.borderLeftWidth),
+            e.clientY - rect.top - parseInt(style.borderTopWidth)
         )
         const scale = Math.pow(2,this.props.zoom)*HIDPI_FACTOR
         pt = pt.div(scale)
@@ -49,6 +60,12 @@ export class PenCanvas extends Component {
     }
 
     componentDidMount() {
+        this.canvas.addEventListener('touchstart',(e)=>{
+            if(this.penActive) {
+                e.preventDefault()
+                e.stopPropagation()
+            }
+        },{passive:false, capture:false})
         this.redraw()
     }
 
@@ -62,15 +79,13 @@ export class PenCanvas extends Component {
             flex: '1.0',
             overflow:'auto'
         }}>
-           <canvas ref={(c)=>this.canvas=c}
+           <canvas className={'drawing-canvas'} ref={(c)=>this.canvas=c}
                    width={500}
                    height={500}
                    onPointerDown={this.pointerDown}
                    onPointerMove={this.pointerMove}
                    onPointerUp={this.pointerUp}
-                   onPointerCancel={()=> this.pressed = false}
-                   onPointerLeave={()=> this.pressed = false  }
-                   onPointerOut={()=> this.pressed = false}
+                   onPointerCancel={this.pointerCancel}
                    onContextMenu={(e)=>e.preventDefault()}
            />
         </div>
