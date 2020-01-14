@@ -50,8 +50,8 @@ export const PenEditor = ({startPen,onClose}) => {
         s.save()
         s.fillStyle = 'white'
         s.fillRect(0,0,sampleCanvas.current.width,sampleCanvas.current.height)
-        brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,30), new Point(200-30,200-30))
-        brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,200-30), new Point(200-30,30))
+        brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,30), new Point(200-30,200-30), 0.2)
+        brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,200-30), new Point(200-30,30), 0.8)
         s.restore()
     })
     return <VBox className={'dialog'}>
@@ -88,7 +88,7 @@ export const PenEditor = ({startPen,onClose}) => {
                     </HBox>
                     <HBox>
                         <label>spacing</label>
-                        <input type="range" min={0} max={1000*3} value={pen.spacing*1000} onChange={updateStateFloat('spacing',0.001)}/>
+                        <input type="range" min={10} max={1000*3} value={pen.spacing*1000} onChange={updateStateFloat('spacing',0.001)}/>
                         <label>{(pen.spacing*100).toFixed(1)}%</label>
                     </HBox>
                     <HBox>

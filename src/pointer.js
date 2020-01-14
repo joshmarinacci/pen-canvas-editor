@@ -78,11 +78,10 @@ export class PointerHandler {
         let x = 0
         let y = 0
         let brush = generateBrush(pen,this.color)
-
         for (let i = 0; i < dist; i += gap) {
             x = this.lastPoint.x + (Math.sin(angle) * i);
             y = this.lastPoint.y + (Math.cos(angle) * i);
-            this.drawingLayer.stamp(brush,x-radius,y-radius,pen.flow,1.0,'src-over')
+            this.drawingLayer.stamp(brush,x-radius,y-radius,pen.flow*pen.spacing*e.pressure,1.0,'src-over')
         }
         this.lastPoint = currentPoint
         this.redraw()
@@ -106,7 +105,7 @@ export class PointerHandler {
     }
 }
 
-export function brushPath(ctx,pen,color,start,end) {
+export function brushPath(ctx,pen,color,start,end, pressure) {
     let dist = start.dist(end)
     let radius = pen.radius
     let gap = radius*pen.spacing
@@ -118,7 +117,7 @@ export function brushPath(ctx,pen,color,start,end) {
     for (let i = 0; i < dist; i += gap) {
         x = start.x + (Math.sin(angle) * i);
         y = start.y + (Math.cos(angle) * i);
-        ctx.globalAlpha = pen.flow
+        ctx.globalAlpha = pen.flow*pen.spacing*pen.opacity*pressure
         ctx.globalCompositeOperation = 'src-over'
         ctx.drawImage(brush,x-radius,y-radius)
     }
