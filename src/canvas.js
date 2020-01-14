@@ -19,19 +19,33 @@ export class PenCanvas extends Component {
                 this.props.color,
                 ()=>this.redraw(),
                 )
-            this.pointerHandler.pointerDown(e)
+            this.cursor = this.getPoint(e)
+            this.pointerHandler.pointerDown(e,this.cursor)
             if(this.props.onPenDraw) this.props.onPenDraw()
         }
         this.pointerMove = (e) => {
             if(e.pointerType === 'touch') return
+            this.cursor = this.getPoint(e)
             this.pointerHandler.pointerMove(e,this.cursor)
         }
         this.pointerUp = (e) => {
             const before = this.currentLayer().makeClone()
-            this.pointerHandler.pointerUp(e)
+            this.cursor = this.getPoint(e)
+            this.pointerHandler.pointerUp(e,this.cursor)
             if (this.props.onDrawDone) this.props.onDrawDone(before)
             this.canvas.style.cursor = 'auto'
         }
+    }
+
+    getPoint(e) {
+        const rect = e.target.getBoundingClientRect()
+        let pt = new Point(
+            e.clientX - rect.left,
+            e.clientY - rect.top
+        )
+        const scale = Math.pow(2,this.props.zoom)*HIDPI_FACTOR
+        pt = pt.div(scale)
+        return pt
     }
 
     componentDidMount() {
@@ -63,7 +77,6 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
-        console.log('drawing')
         //console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
         const cw = this.props.doc.width*scale

@@ -28,8 +28,7 @@ export class PointerHandler {
         this.color = color
         this.redraw = redraw
     }
-    pointerDown(e) {
-        const pt = this.getPoint(e)
+    pointerDown(e,pt) {
         this.pressed = true
         this.lastPoint = pt
         this.drawingLayer.clear()
@@ -51,25 +50,12 @@ export class PointerHandler {
         this.scratchLayer.drawLayer(this.drawingLayer,this.pen.opacity,blend)
         this.scratchLayer.drawSelf(c)
     }
-    getPoint(e) {
-        const rect = e.target.getBoundingClientRect()
-        let pt = new Point(
-            e.clientX - rect.left,
-            e.clientY - rect.top
-        )
-        const scale = Math.pow(2,this.zoom)*HIDPI_FACTOR
-        pt = pt.div(scale)
-        return pt
-    }
 
-    pointerMove(e, cursor) {
+    pointerMove(e, pt) {
         if(!this.pressed) return
         let pen = this.pen
         if((e.buttons & 32)>>5 >0) pen = this.eraser
-
-        let currentPoint = this.getPoint(e)
-        cursor.copyFrom(currentPoint)
-        currentPoint = this.smoothPoint(pen, currentPoint,this.lastPoint)
+        let currentPoint = this.smoothPoint(pen, pt,this.lastPoint)
 
         let dist = this.lastPoint.dist(currentPoint)
         let radius = pen.radius
@@ -87,7 +73,7 @@ export class PointerHandler {
         this.redraw()
     }
 
-    pointerUp(e) {
+    pointerUp(e,pt) {
         this.pressed = false
         let blend = 'src-atop'
         if (this.pen.blend === 'erase') blend = "destination-out"
