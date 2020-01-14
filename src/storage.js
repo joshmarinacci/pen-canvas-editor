@@ -175,7 +175,7 @@ export const ListDocsDialog = ({docs, storage, setDoc}) =>{
     const dm = useContext(DialogContext)
     return <VBox className={'dialog'}>
         <header>Open</header>
-        <VBox className={'body'}>
+        <VBox className={'body scroll'}>
             {docs.map((doc,i)=>{
                 return <HBox key={i} className={"doc-entry"}
                              onClick={()=>{

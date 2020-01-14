@@ -72,6 +72,7 @@ canvas {
 .dialog {
   border: 1px solid black;
   background: white;
+  max-height: 90vh;
 }
 .dialog header {
   background: #ccc;
@@ -134,4 +135,8 @@ canvas {
 
 .hidden {
   display: none;
+}
+
+.scroll {
+  overflow: scroll;
 }
