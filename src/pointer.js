@@ -23,6 +23,7 @@ export class PointerHandler {
         this.zoom = zoom
         this.pen = pen
         if(!('spacing' in this.pen)) this.pen.spacing = 0.25
+        if(!('smoothing' in this.pen)) this.pen.smoothing = 0.5
         this.eraser = eraser
         this.color = color
         this.redraw = redraw
@@ -63,13 +64,14 @@ export class PointerHandler {
 
     pointerMove(e, cursor) {
         if(!this.pressed) return
-        let currentPoint = this.getPoint(e)
-        cursor.copyFrom(currentPoint)
-        currentPoint = this.smoothPoint(currentPoint,this.lastPoint)
-
-        let dist = this.lastPoint.dist(currentPoint)
         let pen = this.pen
         if((e.buttons & 32)>>5 >0) pen = this.eraser
+
+        let currentPoint = this.getPoint(e)
+        cursor.copyFrom(currentPoint)
+        currentPoint = this.smoothPoint(pen, currentPoint,this.lastPoint)
+
+        let dist = this.lastPoint.dist(currentPoint)
         let radius = pen.radius
         let gap = radius*pen.spacing
         let angle = angleBetween(this.lastPoint, currentPoint);
@@ -95,8 +97,8 @@ export class PointerHandler {
         this.redraw()
     }
 
-    smoothPoint(cp, lp) {
-        let a = 0.1
+    smoothPoint(pen, cp, lp) {
+        let a = pen.smoothing*0.5
         return new Point(
             cp.x*(1-a) + lp.x*a,
             cp.y*(1-a) + lp.y*a,

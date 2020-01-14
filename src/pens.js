@@ -8,6 +8,7 @@ export const PenEditor = ({startPen,onClose}) => {
     if(!('spacing' in startPen)) {
         console.log("the pen is missing spacing")
         startPen.spacing = 0.25
+        startPen.smoothing = 0.2
     }
 
     const brushCanvas = useRef()
@@ -89,6 +90,11 @@ export const PenEditor = ({startPen,onClose}) => {
                         <label>spacing</label>
                         <input type="range" min={0} max={1000*3} value={pen.spacing*1000} onChange={updateStateFloat('spacing',0.001)}/>
                         <label>{(pen.spacing*100).toFixed(1)}%</label>
+                    </HBox>
+                    <HBox>
+                        <label>smoothing</label>
+                        <input type="range" min={0} max={1000} value={pen.smoothing*1000} onChange={updateStateFloat('smoothing',0.001)}/>
+                        <label>{(pen.smoothing*100).toFixed(1)}%</label>
                     </HBox>
                 </VBox>
                 <canvas ref={sampleCanvas} style={{width:200, height:200, border:'1px solid black'}}/>
