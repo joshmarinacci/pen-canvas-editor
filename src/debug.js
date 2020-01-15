@@ -10,7 +10,7 @@ export const DebugDialog  = ({})=>{
     useEffect(()=>{
         const c = canvas.current.getContext('2d')
         c.save()
-        c.scale(2,2)
+        c.scale(1,1)
         const pen = {
             radius: 3.0,
             hardness:0.0,
@@ -19,13 +19,18 @@ export const DebugDialog  = ({})=>{
             opacity:1.0,
             smoothing:0
         }
+        c.strokeStyle = 'black'
+        c.lineWidth = 1
+        c.beginPath()
         for(let i=1; i<PenData.length; i++) {
             let prev = new Point(PenData[i-1].x,PenData[i-1].y)
             let curr = new Point(PenData[i].x,PenData[i].y)
-            curr = smoothPoint(pen,curr,prev)
-            const color = {hue:0, sat:0.0, lit:0.0}
-            brushPath(c,pen,color,prev,curr,0.5)
+            c.lineTo(curr.x,curr.y)
+            // curr = smoothPoint(pen,curr,prev)
+            // const color = {hue:0, sat:0.0, lit:0.0}
+            // brushPath(c,pen,color,prev,curr,0.5)
         }
+        c.stroke()
         c.restore()
     })
     return <VBox className={'dialog'}>
