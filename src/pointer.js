@@ -55,7 +55,7 @@ export class PointerHandler {
         if(!this.pressed) return
         let pen = this.pen
         if((e.buttons & 32)>>5 >0) pen = this.eraser
-        let currentPoint = this.smoothPoint(pen, pt,this.lastPoint)
+        let currentPoint = smoothPoint(pen, pt,this.lastPoint)
 
         let dist = this.lastPoint.dist(currentPoint)
         let radius = pen.radius
@@ -82,15 +82,15 @@ export class PointerHandler {
         this.redraw()
     }
 
-    smoothPoint(pen, cp, lp) {
-        let a = pen.smoothing*0.5
-        return new Point(
-            cp.x*(1-a) + lp.x*a,
-            cp.y*(1-a) + lp.y*a,
-        )
-    }
 }
 
+export function smoothPoint(pen, cp, lp) {
+{    let a = pen.smoothing*0.5
+    return new Point(
+        cp.x*(1-a) + lp.x*a,
+        cp.y*(1-a) + lp.y*a,
+    )
+}}
 export function brushPath(ctx,pen,color,start,end, pressure) {
     let dist = start.dist(end)
     let radius = pen.radius

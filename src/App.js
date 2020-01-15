@@ -12,6 +12,7 @@ import {RecentColors} from "./colors";
 import {DialogContainer, DocStats, DownloadDialog, forceDownloadBlob, forceDownloadDataURL} from "./util";
 import {ListDocsDialog, UploadDocDialog} from "./storage";
 import {SettingsDialog} from "./settings";
+import {DebugDialog} from "./debug";
 
 // the list of customized pens
 let allPens = [
@@ -178,6 +179,7 @@ function App() {
   const [colors,setColors] = useState(doc.colors)
 
   let layers = doc.layers.slice().reverse()
+  const dm = useContext(DialogContext)
 
 
   if(first) {
@@ -189,6 +191,7 @@ function App() {
           }
         })
     setFirst(false)
+    // dm.show(<DebugDialog/>)
   }
   const onPenDraw = () =>{
     setDirty(true)
@@ -201,7 +204,6 @@ function App() {
   }
 
   const redraw = ()=>setCounter(counter+1)
-  const dm = useContext(DialogContext)
 
   let onDrawDone = (before)=>{
     undoBackup = before
@@ -245,6 +247,7 @@ function App() {
           <RecentColors colors={colors} onSelect={setColor} color={color}/>
           <Spacer/>
           {dirty?"*":""}
+          <button onClick={()=>dm.show(<DebugDialog pen={pen}/>)}>&Pi;</button>
         </Toolbox>
         <HSLPicker color={color} onChange={setColor}/>
       <Dragger title="debug" x={600} y={400}><DocStats doc={doc}/></Dragger>

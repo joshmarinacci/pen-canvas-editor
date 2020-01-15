@@ -68,7 +68,7 @@ export const PenEditor = ({startPen,onClose}) => {
                     </HBox>
                     <HBox>
                         <label>radius</label>
-                        <input type="range" min={1} max={32} value={pen.radius}  onChange={updateStateFloat('radius')}/>
+                        <input type="range" min={0.5} max={32} value={pen.radius}  onChange={updateStateFloat('radius')}/>
                         <label>{pen.radius}</label>
                     </HBox>
                     <HBox>
