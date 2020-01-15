@@ -191,7 +191,6 @@ function App() {
           }
         })
     setFirst(false)
-    // dm.show(<DebugDialog/>)
   }
   const onPenDraw = () =>{
     setDirty(true)

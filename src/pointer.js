@@ -51,25 +51,27 @@ export class PointerHandler {
         this.scratchLayer.drawSelf(c)
     }
 
-    pointerMove(e, pt) {
+    pointerMove(e, pts) {
         if(!this.pressed) return
         let pen = this.pen
         if((e.buttons & 32)>>5 >0) pen = this.eraser
-        let currentPoint = smoothPoint(pen, pt,this.lastPoint)
 
-        let dist = this.lastPoint.dist(currentPoint)
-        let radius = pen.radius
-        let gap = radius*pen.spacing
-        let angle = angleBetween(this.lastPoint, currentPoint);
-        let x = 0
-        let y = 0
-        let brush = generateBrush(pen,this.color)
-        for (let i = 0; i < dist; i += gap) {
-            x = this.lastPoint.x + (Math.sin(angle) * i);
-            y = this.lastPoint.y + (Math.cos(angle) * i);
-            this.drawingLayer.stamp(brush,x-radius,y-radius,pen.flow*pen.spacing*e.pressure,1.0,'src-over')
-        }
-        this.lastPoint = currentPoint
+        pts.forEach(pt => {
+            let currentPoint = smoothPoint(pen, pt, this.lastPoint)
+            let dist = this.lastPoint.dist(currentPoint)
+            let radius = pen.radius
+            let gap = radius * pen.spacing
+            let angle = angleBetween(this.lastPoint, currentPoint);
+            let x = 0
+            let y = 0
+            let brush = generateBrush(pen, this.color)
+            for (let i = 0; i < dist; i += gap) {
+                x = this.lastPoint.x + (Math.sin(angle) * i);
+                y = this.lastPoint.y + (Math.cos(angle) * i);
+                this.drawingLayer.stamp(brush, x - radius, y - radius, pen.flow * pen.spacing * e.pressure, 1.0, 'src-over')
+            }
+            this.lastPoint = currentPoint
+        })
         this.redraw()
     }
 

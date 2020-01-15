@@ -31,7 +31,9 @@ export class PenCanvas extends Component {
             if(e.pointerType === 'touch') return
             e.preventDefault()
             this.cursor = this.getPoint(e)
-            this.pointerHandler.pointerMove(e,this.cursor)
+            let points = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]
+            points = points.map(e => this.getPoint(e))
+            this.pointerHandler.pointerMove(e,points)
         }
         this.pointerUp = (e) => {
             this.penActive = false
