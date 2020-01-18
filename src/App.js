@@ -110,21 +110,24 @@ const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer, setDirty}) 
   const dm = useContext(DialogContext)
 
   const saveDoc = () => storage.save(doc,colors).then(()=> setDirty(false))
-  const showDownloadDialog = (name,url) => dm.show(<DownloadDialog name={name} url={url}/>)
 
   const showLoadDocDialog = () => {
-    storage.list()
-        .then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
+    saveDoc().then(()=>{
+      return storage.list()
+          .then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
+        setDoc(doc)
+        setLayer(doc.layers[0])
+        setColors(doc.colors)
+      }}/>))
+    })
+  }
+  const newDoc = () => {
+    saveDoc().then(()=>{
+      const doc = makeNewDoc()
       setDoc(doc)
       setLayer(doc.layers[0])
       setColors(doc.colors)
-    }}/>))
-  }
-  const newDoc = () => {
-    const doc = makeNewDoc()
-    setDoc(doc)
-    setLayer(doc.layers[0])
-    setColors(doc.colors)
+    })
   }
 
   const saveJSON = () => {
