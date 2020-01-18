@@ -130,7 +130,6 @@ export class HSLPicker extends Component {
             if (this.insideRing(pt)) {
                 let hue = this.pointToHue(pt)
                 this.setState({pressedHue: true, hue: hue})
-                this.updateColor(hue,this.state.sat,this.state.lit)
                 return
             }
             if (this.insideSatLit(pt)) {
@@ -140,14 +139,12 @@ export class HSLPicker extends Component {
                     sat: satlit.x,
                     lit: satlit.y
                 })
-                this.updateColor(this.state.hue,satlit.x,satlit.y)
             }
         }
         this.move = (e) => {
             if (this.state.pressedHue) {
                 let hue = this.pointToHue(calcPoint(e))
                 this.setState({hue: hue})
-                this.updateColor(hue,this.state.sat,this.state.lit)
             }
             if (this.state.pressedSatLit) {
                 let satlit = this.pointToSatLit(calcPoint(e))
@@ -155,10 +152,10 @@ export class HSLPicker extends Component {
                     sat: satlit.x,
                     lit: satlit.y
                 })
-                this.updateColor(this.state.hue,satlit.x,satlit.y)
             }
         }
         this.up = () => {
+            this.updateColor(this.state.hue,this.state.sat,this.state.lit)
             this.setState({pressedHue: false, pressedSatLit: false})
         }
     }
