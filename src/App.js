@@ -254,12 +254,12 @@ function App() {
 
   return <div id={"main"}>
         <Toolbox className="top-row full-width">
-          <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
           <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer} setDirty={setDirty}/>
           <Spacer/>
           <UndoRedoControls layer={layer} redraw={redraw}/>
-          <Spacer/>
           <ZoomControls zoom={zoom} setZoom={setZoom}/>
+          <Spacer/>
+          <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
         </Toolbox>
         <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
         <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={updatePenSettings}/>

@@ -25,6 +25,8 @@ export class PointerHandler {
         if(!('spacing' in this.pen)) this.pen.spacing = 0.25
         if(!('smoothing' in this.pen)) this.pen.smoothing = 0.5
         this.eraser = eraser
+        if(!('spacing' in this.eraser)) this.eraser.spacing = 0.25
+        if(!('smoothing' in this.eraser)) this.eraser.smoothing = 0.5
         this.color = color
         this.redraw = redraw
     }
@@ -34,6 +36,7 @@ export class PointerHandler {
         this.drawingLayer.clear()
         this.scratchLayer.clear()
         this.drawingLayerVisible = true
+        if((e.buttons & 32)>>5 >0) this.pen = this.eraser
         this.redraw()
     }
 
@@ -53,8 +56,8 @@ export class PointerHandler {
 
     pointerMove(e, pts) {
         if(!this.pressed) return
+        if((e.buttons & 32)>>5 >0) this.pen = this.eraser
         let pen = this.pen
-        if((e.buttons & 32)>>5 >0) pen = this.eraser
 
         pts.forEach(pt => {
             let currentPoint = smoothPoint(pen, pt, this.lastPoint)
