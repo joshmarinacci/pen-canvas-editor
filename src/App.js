@@ -203,6 +203,26 @@ function App() {
   }
 
   const redraw = ()=>setCounter(counter+1)
+  const addLayer = () => {
+    doc.layers.push(new Layer(doc.width,doc.height,'new layer'))
+    redraw()
+  }
+
+  const moveLayerUp = (layer) => {
+    const n = doc.layers.indexOf(layer)
+    if(n <= 0) return
+    doc.layers.splice(n,1)
+    doc.layers.splice(n-1,0,layer)
+    redraw()
+  }
+  const moveLayerDown = () => {
+    const n = doc.layers.indexOf(layer)
+    if(n < 0) return
+    if(n >= doc.layers.length) return
+    doc.layers.splice(n,1)
+    doc.layers.splice(n+1,0,layer)
+    redraw()
+  }
 
   let onDrawDone = (before)=>{
     undoBackup = before
@@ -241,7 +261,7 @@ function App() {
         <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
         <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={updatePenSettings}/>
         <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
-        <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer}/>
+        <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer} addLayer={addLayer} moveLayerUp={moveLayerUp} moveLayerDown={moveLayerDown}/>
         <Toolbox className="bottom-row full-width">
           <RecentColors colors={colors} onSelect={setColor} color={color}/>
           <Spacer/>

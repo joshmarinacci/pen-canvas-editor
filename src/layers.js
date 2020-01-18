@@ -1,5 +1,5 @@
-import {Eye, EyeOff, PlusSquare} from "react-feather";
-import {HBox, Toolbox, VBox} from "./util";
+import {Eye, EyeOff, PlusSquare, ArrowDown, ArrowUp} from "react-feather";
+import {HBox, Spacer, Toolbox, VBox} from "./util";
 import React from "react";
 import {EditableLabel} from './util.js'
 
@@ -176,7 +176,7 @@ function layerVisible(layer) {
 
 
 // panel for a single Layer. no DnD for now.
-const LayerView = ({layer,selected,onSelect, onToggle}) => {
+const LayerView = ({layer,selected,onSelect, onToggle, moveUp, moveDown}) => {
     return <HBox style={{
         border: '1px solid black',
         borderWidth:'1px 0px 0 0px',
@@ -199,15 +199,26 @@ const LayerView = ({layer,selected,onSelect, onToggle}) => {
             onSelect(layer)
         }}/>
         {/*{layer.thumb.canvas}*/}
+        <Spacer/>
+        <button className={'borderless'} onClick={moveUp}><ArrowDown size={16}/></button>
+        <button className={'borderless'} onClick={moveDown}><ArrowUp size={16}/></button>
     </HBox>
 }
 
-export const LayerWrapper = ({layers, selectedLayer, setLayer, redraw}) => {
-    layers = layers.map((lay,i) => <LayerView key={i} layer={lay} selected={selectedLayer} onSelect={setLayer} onToggle={redraw}/>)
+export const LayerWrapper = ({layers, selectedLayer, setLayer, addLayer, redraw, moveLayerUp, moveLayerDown}) => {
+    layers = layers.map((lay,i) => {
+        return <LayerView key={i} layer={lay} selected={selectedLayer} onSelect={setLayer} onToggle={redraw}
+                   moveDown={(e)=>{
+                       moveLayerDown(lay)
+                   }}
+                   moveUp={()=>{
+                       moveLayerUp(lay)
+                   }}/>
+    })
     return <VBox className={'right-column second-row'}>
         {layers}
         <Toolbox>
-            <button className="borderless"><PlusSquare size={20}/></button>
+            <button className="borderless" onClick={addLayer}><PlusSquare size={20}/></button>
         </Toolbox>
     </VBox>
 }
