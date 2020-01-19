@@ -3,14 +3,37 @@ import {PointerHandler} from "./pointer.js";
 import {HIDPI_FACTOR} from "./common.js"
 import {Point} from "./util";
 
+
+class PanDelegate {
+    constructor(canvas,e) {
+        this.canvas = canvas
+        this.touchStart = this.canvas.getPointNoTransform(e)
+        this.translateStart = this.canvas.translate.copy()
+    }
+    move(e) {
+        const touchCurrent = this.canvas.getPointNoTransform(e)
+        this.canvas.translate = touchCurrent.minus(this.touchStart).plus(this.translateStart)
+        this.canvas.redraw()
+    }
+    up(e) {
+        this.touchStart = null
+        this.canvas.redraw()
+        this.canvas.delegate = null
+    }
+}
+
 export class PenCanvas extends Component {
     constructor(props) {
         super(props)
         this.cursor = new Point(100,100)
         this.pointerHandler = new PointerHandler()
         this.penActive = false
+        this.translate = new Point(0,0)
         this.pointerDown = (e) => {
-            if(e.pointerType === 'touch') return
+            if(e.pointerType === 'touch') {
+                this.delegate = new PanDelegate(this,e)
+                return
+            }
             if(e.pointerType === 'pen') this.penActive = true
             e.preventDefault()
             e.stopPropagation()
@@ -28,7 +51,7 @@ export class PenCanvas extends Component {
             if(this.props.onPenDraw) this.props.onPenDraw()
         }
         this.pointerMove = (e) => {
-            if(e.pointerType === 'touch') return
+            if(this.delegate) return this.delegate.move(e)
             e.preventDefault()
             this.cursor = this.getPoint(e)
             let points = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]
@@ -36,6 +59,7 @@ export class PenCanvas extends Component {
             this.pointerHandler.pointerMove(e,points)
         }
         this.pointerUp = (e) => {
+            if(this.delegate) return this.delegate.up(e)
             this.penActive = false
             const before = this.currentLayer().makeClone()
             this.cursor = this.getPoint(e)
@@ -49,15 +73,21 @@ export class PenCanvas extends Component {
         }
     }
 
-    getPoint(e) {
+    getPointNoTransform(e) {
         const rect = e.target.getBoundingClientRect()
         const style = window.getComputedStyle(e.target)
         let pt = new Point(
             e.clientX - rect.left - parseInt(style.borderLeftWidth),
             e.clientY - rect.top - parseInt(style.borderTopWidth)
         )
-        const scale = Math.pow(2,this.props.zoom)*HIDPI_FACTOR
+        pt = pt.div(HIDPI_FACTOR)
+        return pt
+    }
+    getPoint(e) {
+        let pt = this.getPointNoTransform(e)
+        const scale = Math.pow(2,this.props.zoom)
         pt = pt.div(scale)
+        pt = pt.minus(this.translate)
         return pt
     }
 
@@ -108,6 +138,7 @@ export class PenCanvas extends Component {
         }
         const c = this.canvas.getContext('2d')
         c.save()
+        c.translate(this.translate.x,this.translate.y)
         c.scale(scale,scale)
         c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
