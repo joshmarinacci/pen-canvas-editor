@@ -92,12 +92,12 @@ export class PenCanvas extends Component {
     }
 
     componentDidMount() {
-        this.canvas.addEventListener('touchstart',(e)=>{
-            if(this.penActive) {
-                e.preventDefault()
-                e.stopPropagation()
-            }
-        },{passive:false, capture:false})
+        // this.canvas.addEventListener('touchstart',(e)=>{
+        //     if(this.penActive) {
+        //         e.preventDefault()
+        //         e.stopPropagation()
+        //     }
+        // },{passive:false, capture:false})
         this.redraw()
     }
 
