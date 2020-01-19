@@ -76,7 +76,7 @@ export class PenCanvas extends Component {
     }
 
     render() {
-        return <div className="center-row center-column" style={{
+        return <div ref={(d)=>this.div = d} className="center-row center-column" id='canvas-wrapper' style={{
             background:'#ddd',
             flex: '1.0',
             overflow:'auto'
@@ -96,15 +96,15 @@ export class PenCanvas extends Component {
     redraw() {
         //console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
-        const cw = this.props.doc.width*scale
-        const ch = this.props.doc.height*scale
+        const cw = this.div.offsetWidth-2
+        const ch = this.div.offsetHeight-2
         if(this.canvas.width !== cw)    {
-            this.canvas.width = cw
-            this.canvas.style.width = cw*HIDPI_FACTOR +'px'
+            this.canvas.width = cw*2
+            this.canvas.style.width = cw +'px'
         }
         if(this.canvas.height !== ch) {
-            this.canvas.height = ch
-            this.canvas.style.height = ch*HIDPI_FACTOR +'px'
+            this.canvas.height = ch*2
+            this.canvas.style.height = ch +'px'
         }
         const c = this.canvas.getContext('2d')
         c.save()

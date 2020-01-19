@@ -5,10 +5,14 @@ canvas {
   touch-action: none;
   user-select: none;
 }
+#canvas-wrapper {
+  border: 1px solid #aaa;
+}
 .drawing-canvas {
   touch-action: manipulation;
-  border:5px solid black;
+  border:0px solid black;
   box-sizing: border-box;
+  display: block;
 }
 
 #main {
