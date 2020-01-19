@@ -11,7 +11,6 @@ function angleBetween(point1, point2) {
 export class PointerHandler {
     constructor() {
         this.pressed = false
-        this.prev = null
         this.zoom = 1
         this.scratchLayer = new Layer(DW,DH,'scratch')
         this.drawingLayer = new Layer(DW,DH,'pen-layer')
@@ -58,6 +57,7 @@ export class PointerHandler {
         if(!this.pressed) return
         if((e.buttons & 32)>>5 >0) this.pen = this.eraser
         let pen = this.pen
+        let brush = generateBrush(pen, this.color)
 
         pts.forEach(pt => {
             let currentPoint = smoothPoint(pen, pt, this.lastPoint)
@@ -67,7 +67,6 @@ export class PointerHandler {
             let angle = angleBetween(this.lastPoint, currentPoint);
             let x = 0
             let y = 0
-            let brush = generateBrush(pen, this.color)
             for (let i = 0; i < dist; i += gap) {
                 x = this.lastPoint.x + (Math.sin(angle) * i);
                 y = this.lastPoint.y + (Math.cos(angle) * i);
