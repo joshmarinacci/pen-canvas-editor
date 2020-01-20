@@ -9,7 +9,7 @@ canvas {
   border: 1px solid #aaa;
 }
 .drawing-canvas {
-  touch-action: manipulation;
+  touch-action: none;
   border:0px solid black;
   box-sizing: border-box;
   display: block;

@@ -85,19 +85,13 @@ export class PenCanvas extends Component {
     }
     getPoint(e) {
         let pt = this.getPointNoTransform(e)
+        pt = pt.minus(this.translate)
         const scale = Math.pow(2,this.props.zoom)
         pt = pt.div(scale)
-        pt = pt.minus(this.translate)
         return pt
     }
 
     componentDidMount() {
-        // this.canvas.addEventListener('touchstart',(e)=>{
-        //     if(this.penActive) {
-        //         e.preventDefault()
-        //         e.stopPropagation()
-        //     }
-        // },{passive:false, capture:false})
         this.redraw()
     }
 
@@ -111,7 +105,8 @@ export class PenCanvas extends Component {
             flex: '1.0',
             overflow:'auto'
         }}>
-           <canvas className={'drawing-canvas'} ref={(c)=>this.canvas=c}
+           <canvas className={'drawing-canvas'}
+                   ref={(c)=>this.canvas=c}
                    width={500}
                    height={500}
                    onPointerDown={this.pointerDown}
@@ -126,8 +121,8 @@ export class PenCanvas extends Component {
     redraw() {
         //console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
-        const cw = this.div.offsetWidth-2
-        const ch = this.div.offsetHeight-2
+        const cw = this.div.offsetWidth-4
+        const ch = this.div.offsetHeight-4
         if(this.canvas.width !== cw)    {
             this.canvas.width = cw*2
             this.canvas.style.width = cw +'px'
