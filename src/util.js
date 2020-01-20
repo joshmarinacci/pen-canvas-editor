@@ -130,7 +130,7 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
     useEffect(()=>setValue(initialValue),[initialValue])
 
     if(editing) {
-        return  <input type="text" value={value}
+        return  <input className={"editable-label"} type="text" value={value}
                        onKeyDown={(e)=>{
                            if(e.key === 'Enter') {
                                if(onDoneEditing) onDoneEditing(e.target.value)
@@ -139,7 +139,7 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
                        }}
                        onChange={(e)=>setValue(e.target.value)}/>
     } else {
-        return <label onDoubleClick={()=>setEditing(true)}>{value}</label>
+        return <label className={"editable-label"} onDoubleClick={()=>setEditing(true)}>{value}</label>
     }
 }
 

@@ -149,3 +149,8 @@ canvas {
 .scroll {
   overflow: scroll;
 }
+
+
+#main > .editable-label {
+  border: 1px solid black;
+}

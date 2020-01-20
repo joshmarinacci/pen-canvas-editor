@@ -261,7 +261,10 @@ function App() {
           <Spacer/>
           <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
         </Toolbox>
-        <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>doc.title = value}/>
+        <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>{
+          doc.title = value
+          storage.save(doc,colors).then(()=> setDirty(false))
+        }}/>
         <RecentPens pens={pens} selected={pen} onSelect={setPen} color={color} onEdit={updatePenSettings}/>
         <PenCanvas doc={doc} pen={pen} color={color} layer={layer} zoom={zoom} onPenDraw={onPenDraw} eraser={eraser} onDrawDone={onDrawDone}/>
         <LayerWrapper layers={layers} setLayer={setLayer} redraw={redraw} selectedLayer={layer} addLayer={addLayer} moveLayerUp={moveLayerUp} moveLayerDown={moveLayerDown}/>
