@@ -3,6 +3,17 @@ import {toDeg, VBox} from './util.js'
 import {DialogContext, HBox, Point, Spacer} from "./util";
 import {brushPath} from "./pointer";
 
+const StateRangeInput = ({name, min=0, max=1, pen, update, scale=1}) => {
+    return <HBox>
+            <label>{name}</label>
+            <input type="range" min={min*scale}
+                   max={max*scale}
+                   value={pen[name]*scale}
+                   onChange={update(name,1.0/scale)}/>
+            <label>{(pen[name]).toFixed(2)}</label>
+    </HBox>
+}
+
 // panel that shows settings for a pen, let you customize them
 export const PenEditor = ({startPen,onClose}) => {
     if(!('spacing' in startPen)) {
@@ -66,36 +77,12 @@ export const PenEditor = ({startPen,onClose}) => {
                     <HBox>
                         <canvas ref={brushCanvas} style={{border:'1px solid black'}} width={64} height={64}/>
                     </HBox>
-                    <HBox>
-                        <label>radius</label>
-                        <input type="range" min={0.5} max={32} value={pen.radius}  onChange={updateStateFloat('radius')}/>
-                        <label>{pen.radius}</label>
-                    </HBox>
-                    <HBox>
-                        <label>hardness</label>
-                        <input type="range" min={0} max={1000} value={pen.hardness*1000}  onChange={updateStateFloat('hardness',0.001)}/>
-                        <label>{(pen.hardness*100).toFixed(1)}%</label>
-                    </HBox>
-                    <HBox>
-                        <label>flow</label>
-                        <input type="range" min={0} max={1000} value={pen.flow*1000}  onChange={updateStateFloat('flow',0.001)}/>
-                        <label>{(pen.flow*100).toFixed(1)}%</label>
-                    </HBox>
-                    <HBox>
-                        <label>opacity</label>
-                        <input type="range" min={0} max={1000} value={pen.opacity*1000} onChange={updateStateFloat('opacity',0.001)}/>
-                        <label>{(pen.opacity*100).toFixed(1)}%</label>
-                    </HBox>
-                    <HBox>
-                        <label>spacing</label>
-                        <input type="range" min={10} max={1000*3} value={pen.spacing*1000} onChange={updateStateFloat('spacing',0.001)}/>
-                        <label>{(pen.spacing*100).toFixed(1)}%</label>
-                    </HBox>
-                    <HBox>
-                        <label>smoothing</label>
-                        <input type="range" min={0} max={1000} value={pen.smoothing*1000} onChange={updateStateFloat('smoothing',0.001)}/>
-                        <label>{(pen.smoothing*100).toFixed(1)}%</label>
-                    </HBox>
+                    <StateRangeInput name={'radius'} min={0.5} max={32} pen={pen} update={updateStateFloat}/>
+                    <StateRangeInput name={'hardness'} pen={pen} update={updateStateFloat} scale={1000}/>
+                    <StateRangeInput name={'flow'} pen={pen} scale={1000} update={updateStateFloat}/>
+                    <StateRangeInput name={'opacity'} pen={pen} scale={1000} update={updateStateFloat}/>
+                    <StateRangeInput name={'spacing'} min={0.05} max={3} pen={pen} scale={1000} update={updateStateFloat}/>
+                    <StateRangeInput name={'smoothing'} pen={pen} scale={1000} update={updateStateFloat}/>
                 </VBox>
                 <canvas ref={sampleCanvas} style={{width:200, height:200, border:'1px solid black'}}/>
             </HBox>
