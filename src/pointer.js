@@ -96,12 +96,11 @@ export function smoothPoint(pen, cp, lp) {
         cp.y*(1-a) + lp.y*a,
     )
 }}
-export function brushPath(ctx,pen,color,start,end, pressure) {
+export function brushPath(ctx,pen,brush,color,start,end, pressure) {
     let dist = start.dist(end)
     let radius = pen.radius
     let gap = radius*pen.spacing
     let angle = angleBetween(start, end);
-    let brush = generateBrush(pen,color)
     let x = 0
     let y = 0
 
