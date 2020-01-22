@@ -7,10 +7,12 @@ import {Point} from "./util";
 class PanDelegate {
     constructor(canvas,e) {
         this.canvas = canvas
+        this.startId = e.pointerId
         this.touchStart = this.canvas.getPointNoTransform(e)
         this.translateStart = this.canvas.translate.copy()
     }
     move(e) {
+        if(e.pointerId !== this.startId) return
         const touchCurrent = this.canvas.getPointNoTransform(e)
         this.canvas.translate = touchCurrent.minus(this.touchStart).plus(this.translateStart)
         this.canvas.redraw()
@@ -31,7 +33,7 @@ export class PenCanvas extends Component {
         this.translate = new Point(0,0)
         this.pointerDown = (e) => {
             if(e.pointerType === 'touch') {
-                this.delegate = new PanDelegate(this,e)
+                if(!this.delegate && !this.penActive) this.delegate = new PanDelegate(this,e)
                 return
             }
             if(e.pointerType === 'pen') this.penActive = true
@@ -59,7 +61,10 @@ export class PenCanvas extends Component {
             this.pointerHandler.pointerMove(e,points)
         }
         this.pointerUp = (e) => {
-            if(this.delegate) return this.delegate.up(e)
+            if(this.delegate) {
+                this.delegate.up(e)
+                this.delegate = null
+            }
             this.penActive = false
             const before = this.currentLayer().makeClone()
             this.cursor = this.getPoint(e)

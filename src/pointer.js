@@ -79,6 +79,7 @@ export class PointerHandler {
 
     pointerUp(e,pt) {
         this.pressed = false
+        if(!this.pen) return
         let blend = 'src-atop'
         if (this.pen.blend === 'erase') blend = "destination-out"
         this.layer.drawLayer(this.drawingLayer, this.pen.opacity, blend)
