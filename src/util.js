@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 
 export class Observer {
     constructor(value) {
@@ -128,9 +128,13 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
     const [value, setValue] = useState(initialValue)
     //update value when initial value changes
     useEffect(()=>setValue(initialValue),[initialValue])
+    const input = useRef()
+    useEffect(()=>{
+        if(input.current) input.current.focus()
+    })
 
     if(editing) {
-        return  <input className={"editable-label"} type="text" value={value}
+        return  <input className={"editable-label"} type="text" value={value} ref={input}
                        onKeyDown={(e)=>{
                            if(e.key === 'Enter') {
                                if(onDoneEditing) onDoneEditing(e.target.value)
@@ -139,7 +143,7 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
                        }}
                        onChange={(e)=>setValue(e.target.value)}/>
     } else {
-        return <label className={"editable-label"} onDoubleClick={()=>setEditing(true)}>{value}</label>
+        return <label className={"editable-label"} onDoubleClick={()=> setEditing(true)}>{value}</label>
     }
 }
 
