@@ -98,11 +98,11 @@ let undoBackup = null
 let redoBackup = null
 
 const ZoomControls = ({zoom, setZoom}) => {
-  const zoomIn = ()=> (zoom<3)?setZoom(zoom+1):''
-  const zoomOut = ()=> (zoom>-3)?setZoom(zoom-1):''
+  const zoomIn = ()=> (zoom<3)?setZoom(zoom+0.5):''
+  const zoomOut = ()=> (zoom>-3)?setZoom(zoom-0.5):''
   return [
       <button key="zoomin" onClick={zoomIn}><ZoomIn/></button>,
-      <label key="label">{Math.pow(2,zoom)*100}%</label>,
+      <label key="label">{(Math.pow(2,zoom)*100).toFixed(1)}%</label>,
       <button key="zoomout" onClick={zoomOut}><ZoomOut/></button>,
     ]
 }
