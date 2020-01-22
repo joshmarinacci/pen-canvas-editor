@@ -90,9 +90,11 @@ export class PenCanvas extends Component {
     }
     getPoint(e) {
         let pt = this.getPointNoTransform(e)
+        const center = new Point((this.div.offsetWidth-4)/2,(this.div.offsetHeight-4)/2)
+        pt = pt.minus(center)
         pt = pt.minus(this.translate)
-        const scale = Math.pow(2,this.props.zoom)
-        pt = pt.div(scale)
+        pt = pt.div(Math.pow(2,this.props.zoom))
+        pt = pt.plus(center)
         return pt
     }
 
@@ -138,8 +140,10 @@ export class PenCanvas extends Component {
         }
         const c = this.canvas.getContext('2d')
         c.save()
+        c.translate(cw/2,ch/2)
         c.translate(this.translate.x,this.translate.y)
         c.scale(scale,scale)
+        c.translate(-cw/2,-ch/2)
         c.fillStyle = 'white'
         c.fillRect(0,0,this.props.doc.width,this.props.doc.height)
         this.props.doc.layers.forEach(layer => this.drawLayer(c,layer))
