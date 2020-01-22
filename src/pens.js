@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {toDeg, VBox} from './util.js'
+import {Throttle, toDeg, VBox} from './util.js'
 import {DialogContext, HBox, Point, Spacer} from "./util";
 import {brushPath} from "./pointer";
 
@@ -14,13 +14,16 @@ export const PenEditor = ({startPen,onClose}) => {
     const brushCanvas = useRef()
     const sampleCanvas = useRef()
     const [pen, setPen] = useState(startPen)
+    const [throttle] = useState(new Throttle(16))
     const updateStateFloat = (key,scale=1) => {
         return (e)=>{
             const val = parseFloat(e.target.value)*scale
-            setPen(old => {
-                const obj = {...old}
-                obj[key] = val
-                return obj
+            throttle.wait(()=>{
+                setPen(old => {
+                    const obj = {...old}
+                    obj[key] = val
+                    return obj
+                })
             })
         }
     }
@@ -35,6 +38,7 @@ export const PenEditor = ({startPen,onClose}) => {
         }
     }
     useEffect(()=>{
+        console.time('brush')
         const c = brushCanvas.current.getContext('2d')
         c.save()
         c.fillStyle = 'white'
@@ -53,6 +57,7 @@ export const PenEditor = ({startPen,onClose}) => {
         brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,30), new Point(200-30,200-30), 0.2)
         brushPath(s,pen,{hue:0, sat:1.0, lit:0.5},new Point(30,200-30), new Point(200-30,30), 0.8)
         s.restore()
+        console.timeEnd('brush')
     })
     return <VBox className={'dialog'}>
         <header>edit pens</header>
