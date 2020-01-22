@@ -248,7 +248,7 @@ function App() {
         storage.save(doc,colors).then(()=> setDirty(false))
         console.log("auto saved")
       }
-    },5*1000)
+    },60*1000) //save every minute
     return ()=>clearInterval(id)
   })
 
