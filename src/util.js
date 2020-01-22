@@ -235,3 +235,20 @@ export const DownloadDialog = ({name,url}) => {
         </footer>
     </VBox>
 }
+
+export class Throttle {
+    constructor(delay) {
+        this.delay = delay
+        this.id = 0
+    }
+    wait(cb) {
+        if(this.id > 0) {
+            console.log('skipping')
+            return
+        }
+        this.id = setTimeout(()=>{
+            this.id = 0
+            cb()
+        },this.delay)
+    }
+}

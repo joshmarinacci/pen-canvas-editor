@@ -1,5 +1,5 @@
-import React, {Component} from "react"
-import {Point} from './util.js'
+import React, {Component, useState} from "react"
+import {Point, Throttle} from './util.js'
 import {VBox} from "./util";
 
 const w = 200
@@ -118,6 +118,7 @@ function hslToRgb(h, s, l) {
 export class HSLPicker extends Component {
     constructor(props) {
         super(props)
+        this.throttle = new Throttle(16)
         this.state = {
             hue: 3.14,
             sat: 1.0,
@@ -165,6 +166,7 @@ export class HSLPicker extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        this.throttle.wait(()=>this.redraw())
         this.redraw()
     }
 
@@ -186,6 +188,7 @@ export class HSLPicker extends Component {
     }
 
     redraw() {
+        console.time('colorpicker')
         const c = this.canvas.getContext('2d')
 
 
@@ -217,6 +220,7 @@ export class HSLPicker extends Component {
         )
 
         this.drawSwatch(c)
+        console.timeEnd('colorpicker')
     }
 
     drawSatLit(c, x, y, id,n) {
