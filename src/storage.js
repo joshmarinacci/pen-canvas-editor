@@ -22,7 +22,7 @@ export class Storage {
 
     async save(doc,colors) {
         if(!doc.id) doc.id = `doc_${Math.floor(Math.random()*100000)}`
-        const json = this.DocToJSON(doc,colors)
+        const json = await this.DocToJSON(doc,colors)
         const thumb = await this.exportToThumbURL(doc)
         await this.lf.setItem(json.id,json)
         let index = await this.list()
@@ -81,7 +81,7 @@ export class Storage {
     }
 
     //turns canvas objects into layer data
-    DocToJSON(doc,colors) {
+    async DocToJSON(doc,colors) {
         if(!doc) return null
         const d2 = {
             id:doc.id,
@@ -90,18 +90,24 @@ export class Storage {
             height: doc.height,
         }
         if(colors) d2.colors = JSON.parse(JSON.stringify(colors))
-        d2.layers = doc.layers.map(layer => {
-            return {
-                type: layer.type,
-                title: layer.title,
-                width: layer.width,
-                height: layer.height,
-                visible: layer.visible,
-                //no canvas
-                tiles: layer.tilesToDataURLs('png')
-            }
+        let proms = doc.layers.map(layer => this.layerToJSON(layer))
+        return Promise.all(proms).then(layers=>{
+            d2.layers = layers
+            return d2
         })
-        return d2
+    }
+
+    async layerToJSON(layer) {
+        const data = {
+            type: layer.type,
+            title: layer.title,
+            width: layer.width,
+            height: layer.height,
+            visible: layer.visible,
+            //no canvas
+            tiles: null
+        }
+        data.tiles = await layer.tilesToDataURLs('png')
     }
 
     docToPNGBlob(doc) {
