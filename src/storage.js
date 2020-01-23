@@ -111,7 +111,8 @@ export class Storage {
             tiles: null
         }
         if('opacity' in layer) data.opacity = layer.opacity
-        data.tiles = await layer.tilesToDataURLs('png')
+        data.tiles = layer.tilesToDataURLs('png')
+        return data
     }
 
     docToPNGBlob(doc) {

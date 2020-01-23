@@ -143,14 +143,12 @@ export class Layer {
     }
 
     tilesToDataURLs(type) {
-        const canvases = []
-        this.forAllTiles((tile => {
-            if(!tile.empty()) canvases.push(new Promise((res,rej)=>{
-                const url = tile.canvas.toDataURL(type)
-                res(url)
-            }))
-        }))
-        return Promise.all(canvases)
+        return this.tiles.map(tiles =>{
+            return tiles.map((tile)=>{
+                if(tile.empty()) return null
+                return tile.canvas.toDataURL(type)
+            })
+        })
     }
     loadTiles(tiles) {
         return new Promise((res,rej)=>{
