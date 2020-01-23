@@ -1,7 +1,6 @@
 import {Eye, EyeOff, PlusSquare, ArrowDown, ArrowUp} from "react-feather";
-import {HBox, Spacer, Toolbox, VBox} from "./util";
-import React from "react";
-import {EditableLabel} from './util.js'
+import {DialogContext, HBox, Spacer, Toolbox, VBox} from "./util";
+import React, {useContext, useState} from "react";
 
 
 const TILE_SIZE = 256
@@ -45,6 +44,7 @@ export class Layer {
     constructor(w,h,title) {
         this.type = 'layer'
         this.visible = true
+        this.opacity = 1.0
 
         this.width = w
         this.height = h
@@ -115,10 +115,13 @@ export class Layer {
         this.forAllTiles(t => t.clear())
     }
     drawSelf(c) {
+        c.save()
+        c.globalAlpha = this.opacity
         this.forAllTiles((t,i,j) => {
             if(t.empty()) return
             c.drawImage(t.getCanvas(),i*TILE_SIZE,j*TILE_SIZE)
         })
+        c.restore()
     }
     drawLayer(layer, opacity=1.0, blend='src-atop') {
         layer.forAllTiles((srcTile,i,j) => {
@@ -177,45 +180,64 @@ function layerVisible(layer) {
 }
 
 
+const EditLayerDialog = ({layer, moveUp, moveDown}) => {
+    if(!('opacity' in layer)) layer.opacity = 1.0
+    const [opacity, setOpacity] = useState(layer.opacity)
+    const [title, setTitle] = useState(layer.title)
+    const dm = useContext(DialogContext)
+    return <VBox className={'dialog'} style={{minWidth: '20em'}}>
+        <header>Edit Layer</header>
+        <HBox>
+            <label>name</label>
+            <input type="text" value={layer.title} onChange={(e)=>{
+                layer.title = e.target.value
+                setTitle(layer.title)
+            }}/>
+        </HBox>
+        <HBox>
+            <label>opacity</label>
+            <input type='range' value={layer.opacity*100} min={0} max={100} onChange={(e)=>{
+                const v = parseFloat(e.target.value)/100
+                layer.opacity = v
+                setOpacity(layer.opacity)
+            }}/>
+            <label>{(layer.opacity*100).toFixed(1)}%</label>
+        </HBox>
+        <HBox>
+            <button className={'borderless'} onClick={moveUp}><ArrowDown size={16}/></button>
+            <button className={'borderless'} onClick={moveDown}><ArrowUp size={16}/></button>
+        </HBox>
+        <footer>
+            <Spacer/>
+            <button onClick={()=>dm.hide()}>close</button>
+        </footer>
+    </VBox>
+}
+
 // panel for a single Layer. no DnD for now.
 const LayerView = ({layer,selected,onSelect, onToggle, moveUp, moveDown}) => {
-    return <HBox style={{
-        border: '1px solid black',
-        borderWidth:'1px 0px 0 0px',
-        minWidth:'200px',
-        backgroundColor: selected===layer?'aqua':'white'
-    }}
-                 onMouseDown={()=>onSelect(layer)}
-    >
+    const dm = useContext(DialogContext)
+    return <HBox className={'layer-view'} style={{backgroundColor: selected===layer?'aqua':'white'}}
+                 onDoubleClick={()=>dm.show(<EditLayerDialog layer={layer} moveUp={moveUp} moveDown={moveDown}/>)}
+                 onMouseDown={()=>onSelect(layer)}>
         <button className={"borderless"} style={{backgroundColor:'transparent'}}
             onMouseDown={(e)=>{
                 e.preventDefault()
                 e.stopPropagation()
             }}
-                onClick={()=>{
-            layer.visible = !layer.visible
-            onToggle(layer)
-        }}>{layerVisible(layer)}</button>
-        <EditableLabel initialValue={layer.title} onDoneEditing={(v)=>{
-            layer.title = v
-            onSelect(layer)
-        }}/>
-        {/*{layer.thumb.canvas}*/}
-        <Spacer/>
-        <button className={'borderless'} onClick={moveUp}><ArrowDown size={16}/></button>
-        <button className={'borderless'} onClick={moveDown}><ArrowUp size={16}/></button>
+            onClick={()=>{
+                layer.visible = !layer.visible
+                onToggle(layer)
+            }}>{layerVisible(layer)}</button>
+        <label>{layer.title}</label>
     </HBox>
 }
 
 export const LayerWrapper = ({layers, selectedLayer, setLayer, addLayer, redraw, moveLayerUp, moveLayerDown}) => {
     layers = layers.map((lay,i) => {
         return <LayerView key={i} layer={lay} selected={selectedLayer} onSelect={setLayer} onToggle={redraw}
-                   moveDown={(e)=>{
-                       moveLayerDown(lay)
-                   }}
-                   moveUp={()=>{
-                       moveLayerUp(lay)
-                   }}/>
+                   moveDown={(e)=> moveLayerDown(lay)}
+                   moveUp={()=> moveLayerUp(lay)}/>
     })
     return <VBox className={'right-column second-row'}>
         {layers}

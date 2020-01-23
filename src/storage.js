@@ -61,6 +61,8 @@ export class Storage {
             return new Promise((res,rej) =>{
                 let newLayer = new Layer(layer.width,layer.height,layer.title)
                 newLayer.visible = layer.visible
+                newLayer.opacity = 1.0
+                if('opacity' in layer) newLayer.opacity = layer.opacity
                 newLayer.loadTiles(layer.tiles).then(()=>  res(newLayer))
             })
         }
@@ -104,9 +106,11 @@ export class Storage {
             width: layer.width,
             height: layer.height,
             visible: layer.visible,
+            opacity: 1.0,
             //no canvas
             tiles: null
         }
+        if('opacity' in layer) data.opacity = layer.opacity
         data.tiles = await layer.tilesToDataURLs('png')
     }
 

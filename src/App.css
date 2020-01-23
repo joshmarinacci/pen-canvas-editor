@@ -154,3 +154,10 @@ canvas {
 #main > .editable-label {
   border: 1px solid black;
 }
+
+.layer-view {
+  border: 1px solid black;
+  border-width: 1px 0px 0 0px;
+  padding: 0.5em 0.5em;
+  min-width: 200px;
+}
