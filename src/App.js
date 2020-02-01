@@ -1,18 +1,18 @@
-import React, {useContext, useEffect, useState} from 'react';
-import './App.css';
+import React, {useContext, useEffect, useState} from 'react'
+import './App.css'
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
-import {EditableLabel, HBox, Observer, Spacer, Toolbox, VBox, DialogContext} from './util.js'
+import {DialogContext, EditableLabel, Spacer, Toolbox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Save, File, Folder, Download, Upload, ZoomIn, ZoomOut, Settings, RotateCcw, RotateCw} from "react-feather"
-import {Layer, LayerWrapper} from "./layers";
-import {DH, DW} from "./common";
-import {RecentColors} from "./colors";
-import {DialogContainer, DocStats, DownloadDialog, forceDownloadBlob, forceDownloadDataURL} from "./util";
-import {ListDocsDialog, UploadDocDialog} from "./storage";
-import {SettingsDialog} from "./settings";
-import {DebugDialog} from "./debug";
+import {Download, File, Folder, RotateCcw, RotateCw, Save, Settings, Upload, ZoomIn, ZoomOut} from "react-feather"
+import {Layer, LayerWrapper} from "./layers"
+import {DH, DW} from "./common"
+import {RecentColors} from "./colors"
+import {DialogContainer, DocStats, forceDownloadBlob, forceDownloadDataURL} from "./util"
+import {ListDocsDialog, UploadDocDialog} from "./storage"
+import {SettingsDialog} from "./settings"
+import {DebugDialog} from "./debug"
 
 // the list of customized pens
 let allPens = [

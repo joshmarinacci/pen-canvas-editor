@@ -2,9 +2,8 @@ import {DialogContext, Spacer, VBox, Point} from "./util";
 import React, {useContext, useEffect, useRef} from "react";
 
 import PenData from "./pendata.json"
-import {brushPath, smoothPoint} from "./pointer";
 
-export const DebugDialog  = ({})=>{
+export const DebugDialog  = ()=>{
     const dm = useContext(DialogContext)
     const canvas = useRef()
     useEffect(()=>{
