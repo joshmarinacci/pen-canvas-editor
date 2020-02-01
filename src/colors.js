@@ -166,7 +166,6 @@ export class HSLPicker extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.throttle.wait(()=>this.redraw())
-        this.redraw()
     }
 
     render() {
@@ -187,7 +186,7 @@ export class HSLPicker extends Component {
     }
 
     redraw() {
-        console.time('colorpicker')
+        // console.time('colorpicker')
         const c = this.canvas.getContext('2d')
 
 
@@ -219,7 +218,7 @@ export class HSLPicker extends Component {
         )
 
         this.drawSwatch(c)
-        console.timeEnd('colorpicker')
+        // console.timeEnd('colorpicker')
     }
 
     drawSatLit(c, x, y, id,n) {

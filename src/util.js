@@ -243,7 +243,6 @@ export class Throttle {
     }
     wait(cb) {
         if(this.id > 0) {
-            console.log('skipping')
             return
         }
         this.id = setTimeout(()=>{
