@@ -1,11 +1,11 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import './App.css'
 import {Storage} from "./storage.js"
 import {PenCanvas} from "./canvas.js"
 import {DialogContext, EditableLabel, Spacer, Toolbox} from './util.js'
 import {Dragger, HSLPicker} from './colors.js'
 import {RecentPens} from './pens.js'
-import {Download, File, Folder, RotateCcw, RotateCw, Save, Settings, Upload, ZoomIn, ZoomOut} from "react-feather"
+import {Download, File, Folder, RotateCcw, RotateCw, Save, Settings, Upload, ZoomIn, ZoomOut, Minimize2, Maximize2} from "react-feather"
 import {Layer, LayerWrapper} from "./layers"
 import {DH, DW} from "./common"
 import {RecentColors} from "./colors"
@@ -224,6 +224,27 @@ const UndoRedoControls = ({buffer, doc, redraw}) => {
     ]
 }
 
+const FullscreenButton = ({element})=>{
+  const [full, setFull] = useState(false)
+
+  const toggleFullscreen = () => {
+    if (full) return document.exitFullscreen().then(() => setFull(false))
+    if (element.current) return element.current.requestFullscreen().then(() => setFull(true))
+  }
+
+  useEffect(()=>{
+    const h = () => setFull(document.fullscreenElement?true:false)
+    document.addEventListener('fullscreenchange',h)
+    document.addEventListener('fullscreenerror',h)
+    return () => {
+      document.removeEventListener('fullscreenchange',h)
+      document.removeEventListener('fullscreenerror',h)
+    }
+  },[full])
+
+  let fsicon = full ? <Minimize2/> : <Maximize2/>
+  return <button onClick={toggleFullscreen}>{fsicon} full screen</button>
+}
 function App() {
   const [first,setFirst] = useState(true)
   const [pens,setPens] = useState(allPens)
@@ -308,13 +329,16 @@ function App() {
     return ()=>clearInterval(id)
   })
 
-  return <div id={"main"}>
+  const topElement = useRef()
+
+  return <div id={"main"} ref={topElement}>
         <Toolbox className="top-row full-width">
           <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer} setDirty={setDirty}/>
           <Spacer/>
           <UndoRedoControls doc={doc} redraw={redraw} buffer={undoBuffer}/>
           <ZoomControls zoom={zoom} setZoom={setZoom}/>
           <Spacer/>
+          <FullscreenButton element={topElement}/>
           <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
         </Toolbox>
         <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>{
