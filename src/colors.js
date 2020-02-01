@@ -1,6 +1,5 @@
-import React, {Component, useState} from "react"
+import React, {Component} from "react"
 import {Point, Throttle} from './util.js'
-import {VBox} from "./util";
 
 const w = 200
 const h = 200

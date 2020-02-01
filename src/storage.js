@@ -177,8 +177,8 @@ export class Storage {
 }
 
 const DocThumbnail = ({doc}) => {
-    if(!doc || !doc.thumbnail) return <img width={64} height={64}/>
-    return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height}/>
+    if(!doc || !doc.thumbnail) return <img width={64} height={64} alt={'thumbnail'}/>
+    return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height} alt={'thumbnail'}/>
 }
 
 export const ListDocsDialog = ({docs, storage, setDoc}) =>{

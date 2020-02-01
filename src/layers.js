@@ -234,14 +234,14 @@ const EditLayerDialog = ({layer, moveUp, moveDown}) => {
         <header>Edit Layer</header>
         <HBox>
             <label>name</label>
-            <input type="text" value={layer.title} onChange={(e)=>{
+            <input type="text" value={title} onChange={(e)=>{
                 layer.title = e.target.value
                 setTitle(layer.title)
             }}/>
         </HBox>
         <HBox>
             <label>opacity</label>
-            <input type='range' value={layer.opacity*100} min={0} max={100} onChange={(e)=>{
+            <input type='range' value={opacity*100} min={0} max={100} onChange={(e)=>{
                 const v = parseFloat(e.target.value)/100
                 layer.opacity = v
                 setOpacity(layer.opacity)
