@@ -1,10 +1,11 @@
 // all methods return promises
 //stored docs also have low res thumbnails embedded
 
-import React, {useContext, useState} from "react";
-import {DialogContext, HBox, Spacer, VBox} from "./util";
+import React, {useContext, useState} from "react"
+import {DialogContext, Spacer, VBox} from "./util";
 import {Layer} from "./layers";
 import * as localforage from "localforage"
+import {X} from "react-feather"
 
 
 const PENS_STORAGE_KEY = "PENS_STORAGE_KEY"
@@ -174,6 +175,15 @@ export class Storage {
         return this.lf.getItem(PENS_STORAGE_KEY)
     }
 
+    async deleteDoc(doc) {
+        return this.lf.removeItem(doc.id).then(()=>{
+            return this.list()
+        }).then(index => {
+            index = index.filter(e => e.id !== doc.id)
+            return this.lf.setItem('index',index)
+        })
+    }
+
 }
 
 const DocThumbnail = ({doc}) => {
@@ -181,28 +191,38 @@ const DocThumbnail = ({doc}) => {
     return <img src={doc.thumbnail.data} width={doc.thumbnail.width} height={doc.thumbnail.height} alt={'thumbnail'}/>
 }
 
-export const ListDocsDialog = ({docs, storage, setDoc}) =>{
-    if(!docs) docs = []
+export const ListDocsDialog = ({docs:realDocs,storage, setDoc}) =>{
+    const [docs,setDocs] = useState(realDocs)
+    function deleteDoc(e,doc) {
+        e.preventDefault()
+        e.stopPropagation()
+        storage.deleteDoc(doc)
+            .then(()=>storage.list())
+            .then(items => setDocs(items))
+    }
     const dm = useContext(DialogContext)
     return <VBox className={'dialog'}>
         <header>Open</header>
-        <VBox className={'body scroll'}>
+        <div className={'body scroll file-dialog'}>
             {docs.map((doc,i)=>{
-                return <HBox key={i} className={"doc-entry"}
+                return <div key={i} className={"doc-entry"}
                              onClick={()=>{
                                  storage.load(doc.id).then(doc => {
                                      dm.hide()
                                      setDoc(doc)
                                  })
                              }}>
-                    <label>{doc.title}</label>
+                    <div className={'label-field'}>
+                        <label>{doc.title}</label>
+                        <button onClick={(e)=>deleteDoc(e,doc)}><X size={14}/></button>
+                    </div>
                     <DocThumbnail doc={doc}/>
-                </HBox>
+                </div>
             })}
-        </VBox>
+        </div>
         <footer>
             <Spacer/>
-            <button onClick={()=>dm.hide()}>cancel</button></footer>
+            <button onClick={()=>dm.hide()}>dismiss</button></footer>
     </VBox>
 }
 

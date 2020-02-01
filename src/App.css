@@ -118,6 +118,37 @@ canvas {
   background-color: var(--accent-color);
 }
 
+.file-dialog {
+  border: 5px solid red;
+  width: 70vw;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-height: 70vh;
+}
+
+.file-dialog .doc-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.file-dialog .doc-entry .label-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.file-dialog .doc-entry button {
+  border: 1px solid #ddd;
+  color: #ddd;
+  padidng: 0rem;
+  margin:0.5rem;
+  background-color: transparent;
+}
+.file-dialog .doc-entry button:hover {
+  border: 1px solid #444;
+  color: black;
+  background-color: #dddddd;
+}
 
 .brush {
   border: 2px solid #f0f0f0;

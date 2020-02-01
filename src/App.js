@@ -110,11 +110,13 @@ const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer, setDirty}) 
   const showLoadDocDialog = () => {
     saveDoc().then(()=>{
       return storage.list()
-          .then(items => dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
-        setDoc(doc)
-        setLayer(doc.layers[0])
-        setColors(doc.colors)
-      }}/>))
+          .then(items => {
+            dm.show(<ListDocsDialog docs={items} storage={storage} setDoc={(doc)=>{
+              setDoc(doc)
+              setLayer(doc.layers[0])
+              setColors(doc.colors)
+            }}/>)
+          })
     })
   }
   const newDoc = () => {
