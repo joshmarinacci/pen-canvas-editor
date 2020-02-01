@@ -9,6 +9,11 @@ class Tile {
     constructor(size) {
         this.size = size
         this.canvas = null
+        this.frozen = false
+        this.id = "tile_"+Math.floor(Math.random()*100000)
+    }
+    freeze() {
+        this.frozen = true
     }
     empty() {
         return this.canvas === null
@@ -39,26 +44,38 @@ class Tile {
         if(!this.canvas) this.initCanvas()
         return this.canvas
     }
+    clone() {
+        const tile = new Tile(this.size)
+        if(this.canvas) {
+            const dstCanvas = tile.getCanvas()
+            const c = dstCanvas.getContext('2d')
+            c.drawImage(this.canvas,0,0)
+        }
+        return tile
+    }
 }
 export class Layer {
-    constructor(w,h,title) {
+    constructor(w,h,title,makeTiles=true) {
         this.type = 'layer'
+        this.id = 'layer_'+Math.floor(Math.random()*1000000)
         this.visible = true
         this.opacity = 1.0
 
         this.width = w
         this.height = h
         this.tiles = []
-        let tw = Math.ceil(this.width/TILE_SIZE)
-        let th = Math.ceil(this.height/TILE_SIZE)
-        for(let i=0;i<tw;i++) {
-            this.tiles[i] = []
-            for(let j=0;j<th;j++) {
-                this.tiles[i][j] = new Tile(TILE_SIZE)
-            }
-        }
         this.title = title
-        this.forAllTiles(tile => tile.clear())
+        if(makeTiles) {
+            let tw = Math.ceil(this.width / TILE_SIZE)
+            let th = Math.ceil(this.height / TILE_SIZE)
+            for (let i = 0; i < tw; i++) {
+                this.tiles[i] = []
+                for (let j = 0; j < th; j++) {
+                    this.tiles[i][j] = new Tile(TILE_SIZE)
+                }
+            }
+            this.forAllTiles(tile => tile.clear())
+        }
     }
     getTileCount() {
         return this.tiles.length * this.tiles[0].length
@@ -102,6 +119,9 @@ export class Layer {
         for(let i=sx; i<ex; i++) {
             for(let j=sy;j<ey;j++) {
                 let t = this.tiles[i][j]
+                if(t.frozen) {
+                    console.log("cant stamp to frozen")
+                }
                 const ctx = t.getCanvas().getContext('2d')
                 ctx.save()
                 ctx.globalAlpha = flow
@@ -126,19 +146,26 @@ export class Layer {
     drawLayer(layer, opacity=1.0, blend='src-atop') {
         layer.forAllTiles((srcTile,i,j) => {
             if(srcTile.empty()) return
-            const dstTile = this.tiles[i][j]
+            let dstTile = this.tiles[i][j]
+            if(dstTile.frozen) {
+                this.tiles[i][j] = dstTile.clone()
+                dstTile = this.tiles[i][j]
+            }
             const c = dstTile.getCanvas().getContext('2d')
             c.save()
             c.globalAlpha = opacity
             c.globalCompositeOperation = blend
-            c.drawImage(srcTile.getCanvas(),0,0)
+            c.drawImage(srcTile.getCanvas(), 0, 0)
             c.restore()
         })
     }
 
     makeClone() {
-        const layer = new Layer(this.width,this.height,this.title+'-clone')
-        layer.drawLayer(this)
+        const layer = new Layer(this.width,this.height,this.title+'-clone',false)
+        this.forAllTiles((src,i,j)=>{
+            if(!layer.tiles[i]) layer.tiles[i] = []
+            layer.tiles[i][j] = src
+        })
         return layer
     }
 
@@ -166,6 +193,9 @@ export class Layer {
             })
             res(this)
         })
+    }
+    freeze() {
+        this.forAllTiles((t)=>t.freeze())
     }
 }
 

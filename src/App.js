@@ -196,6 +196,7 @@ function App() {
     setFirst(false)
   }
   const onPenDraw = () =>{
+    doc.layers.forEach(l => l.freeze())
     setDirty(true)
     const existing = colors.find(c => c.hue === color.hue && c.sat === color.sat && c.lit === color.lit)
     if(!existing) {
