@@ -93,10 +93,6 @@ function makeNewDoc() {
 
 const storage = new Storage()
 
-
-let undoBackup = null
-let redoBackup = null
-
 const ZoomControls = ({zoom, setZoom}) => {
   const zoomIn = ()=> (zoom<3)?setZoom(zoom+0.5):''
   const zoomOut = ()=> (zoom>-3)?setZoom(zoom-0.5):''
@@ -147,24 +143,84 @@ const FileControls = ({storage,doc,setDoc,colors,setColors,setLayer, setDirty}) 
     <button key="jsonup" onClick={uploadJSON}><Upload/>JSON</button>,
     ]
 }
-const UndoRedoControls = ({layer, redraw}) => {
+
+class UndoBuffer {
+  constructor() {
+    this.stack = []
+    this.current = 0
+    this.listeners = []
+  }
+  on(cb) {
+    this.listeners.push(cb)
+  }
+  off(cb) {
+    this.listeners = this.listeners.filter(c => c !== cb)
+  }
+  canUndo() {
+    if(this.current > 0) return true
+    return false
+  }
+  canRedo() {
+    if(this.current < this.stack.length) return true
+    return false
+  }
+  add(layer) {
+    console.log("adding a layer to the undo buffer",layer)
+    console.log("current",this.current,'length',this.stack.length)
+    this.stack = this.stack.slice(0,this.current)
+    this.stack.push(layer)
+    this.current++
+    this.listeners.forEach(cb => cb(this))
+  }
+  performUndo(doc) {
+    console.log("performing the undo")
+    const c = this.stack[this.current-1]
+    console.log("looking at",c)
+    console.log("doc is",doc)
+    doc.layers.forEach(l => {
+      if(l.id === c.prevId) l.copyFrom(c)
+    })
+    this.current--
+    console.log("current",this.current,'length',this.stack.length)
+    this.listeners.forEach(cb => cb(this))
+  }
+
+  performRedo(doc) {
+    console.log("performing the redo")
+    const c = this.stack[this.current]
+    console.log("looking at",c)
+    console.log("doc is",doc)
+    //splice it in
+    doc.layers.forEach(l => {
+      if(l.id === c.prevId) l.copyFrom(c)
+    })
+    this.current++
+    console.log("current",this.current,'length',this.stack.length)
+    this.listeners.forEach(cb => cb(this))
+  }
+}
+
+const undoBuffer = new UndoBuffer()
+
+const UndoRedoControls = ({buffer, doc, redraw}) => {
   const undo = () => {
-    redoBackup = layer.makeClone()
-    layer.clear()
-    layer.drawLayer(undoBackup)
-    undoBackup = null
+    buffer.performUndo(doc)
     redraw()
   }
   const redo = () => {
-    undoBackup = layer.makeClone()
-    layer.clear()
-    layer.drawLayer(redoBackup)
-    redoBackup = null
+    buffer.performRedo(doc)
     redraw()
   }
+  useEffect(()=>{
+    const update = (buffer) => {
+      console.log("updated",buffer.current,buffer.stack)
+    }
+    buffer.on(update)
+    return ()=>buffer.off(update)
+  })
   return [
-    <button key="undo" onClick={undo} disabled={undoBackup === null}><RotateCcw/></button>,
-    <button key="redo" onClick={redo} disabled={redoBackup === null}><RotateCw/></button>,
+    <button key="undo" onClick={undo} disabled={!buffer.canUndo()}><RotateCcw/></button>,
+    <button key="redo" onClick={redo} disabled={!buffer.canRedo()}><RotateCw/></button>,
     ]
 }
 
@@ -228,9 +284,8 @@ function App() {
     redraw()
   }
 
-  let onDrawDone = (before)=>{
-    undoBackup = before
-    redoBackup = null
+  let onDrawDone = (beforeLayer)=>{
+    undoBuffer.add(beforeLayer)
     redraw()
   };
   const updatePenSettings = (newPen) => {
@@ -257,7 +312,7 @@ function App() {
         <Toolbox className="top-row full-width">
           <FileControls storage={storage} doc={doc} setDoc={setDoc} colors={colors} setColors={setColors} setLayer={setLayer} setDirty={setDirty}/>
           <Spacer/>
-          <UndoRedoControls layer={layer} redraw={redraw}/>
+          <UndoRedoControls doc={doc} redraw={redraw} buffer={undoBuffer}/>
           <ZoomControls zoom={zoom} setZoom={setZoom}/>
           <Spacer/>
           <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>

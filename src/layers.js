@@ -162,11 +162,28 @@ export class Layer {
 
     makeClone() {
         const layer = new Layer(this.width,this.height,this.title+'-clone',false)
+        layer.prevId = this.id
         this.forAllTiles((src,i,j)=>{
             if(!layer.tiles[i]) layer.tiles[i] = []
             layer.tiles[i][j] = src
         })
         return layer
+    }
+
+    copyFrom(layer) {
+        console.log("updating layer",this.id,'from layer',layer.id)
+        this.forAllTiles((t,i,j)=>{
+            const srcT = layer.tiles[i][j]
+            if(!srcT.empty()) {
+                const c = t.getCanvas().getContext('2d')
+                c.save()
+                c.globalCompositeOperation = 'copy'
+                c.drawImage(srcT.getCanvas(),0,0)
+                c.restore()
+            } else {
+                t.canvas = null //make it be empty
+            }
+        })
     }
 
     tilesToDataURLs(type) {
