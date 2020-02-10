@@ -37,6 +37,7 @@ export class PenCanvas extends Component {
                 return
             }
             if(e.pointerType === 'pen') this.penActive = true
+            if(e.pointerType === 'mouse') e.pressure = 0.5
             e.preventDefault()
             e.stopPropagation()
             if(!this.currentLayer().visible) return console.warn("can't draw to a hidden layer")
@@ -58,6 +59,7 @@ export class PenCanvas extends Component {
             this.cursor = this.getPoint(e)
             let points = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]
             points = points.map(e => this.getPoint(e))
+            if(e.pointerType === 'mouse') e.pressure = 0.5
             this.pointerHandler.pointerMove(e,points)
         }
         this.pointerUp = (e) => {
@@ -126,7 +128,7 @@ export class PenCanvas extends Component {
     }
 
     redraw() {
-        //console.time('draw')
+        // console.time('draw')
         const scale = Math.pow(2,this.props.zoom)
         const cw = this.div.offsetWidth-4
         const ch = this.div.offsetHeight-4
