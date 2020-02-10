@@ -226,21 +226,53 @@ const UndoRedoControls = ({buffer, doc, redraw}) => {
     ]
 }
 
+function requestFullScreen(elm) {
+  if(elm.webkitRequestFullscreen) return Promise.resolve(elm.webkitRequestFullscreen())
+  return elm.requestFullscreen()
+}
+let FSEVENTS = {
+  fullscreenchange:'fullscreenchange',
+  fullscreenerror:'fullscreenerror',
+}
+if(document.webkitFullscreenEnabled) {
+  console.log("we have the webkit version of fullscreen")
+  FSEVENTS.fullscreenchange = 'webkitfullscreenchange'
+  FSEVENTS.fullscreenerror = 'webkitfullscreenerror'
+}
+
+function getFullscreenElement() {
+  if(document.webkitFullscreenElement) return document.webkitFullscreenElement
+  return document.fullscreenElement
+}
+function exitFullscreen() {
+  if(document.exitFullscreen) return document.exitFullscreen()
+  if(document.webkitExitFullscreen) return Promise.resolve(document.webkitExitFullscreen())
+}
+
 const FullscreenButton = ({element})=>{
   const [full, setFull] = useState(false)
 
   const toggleFullscreen = () => {
-    if (full) return document.exitFullscreen().then(() => setFull(false))
-    if (element.current) return element.current.requestFullscreen().then(() => setFull(true))
+    if (full) return exitFullscreen().then(() => setFull(false))
+    if (element.current) {
+      console.log("entering fs")
+      return requestFullScreen(element.current).then(()=>{
+        console.log("entered fs")
+        setFull(true)
+      })
+    }
   }
 
   useEffect(()=>{
-    const h = () => setFull(document.fullscreenElement?true:false)
-    document.addEventListener('fullscreenchange',h)
-    document.addEventListener('fullscreenerror',h)
+    const h = () => {
+      console.log("changed",getFullscreenElement())
+      setFull(getFullscreenElement()?true:false)
+    }
+    document.addEventListener(FSEVENTS.fullscreenchange,h)
+    document.addEventListener(FSEVENTS.fullscreenerror,h)
     return () => {
-      document.removeEventListener('fullscreenchange',h)
-      document.removeEventListener('fullscreenerror',h)
+      document.removeEventListener(FSEVENTS.fullscreenchange,h)
+      document.removeEventListener(FSEVENTS.fullscreenerror,h)
     }
   },[full])
 
