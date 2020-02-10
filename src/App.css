@@ -20,6 +20,7 @@ canvas {
   grid-template-columns: 68px 1fr 200px;
   grid-template-rows: 2em 2em 1fr 2em;
   border: 0px solid red;
+  height: 100vh;
   position: fixed;
   top:0;
   left:0;
@@ -30,8 +31,12 @@ canvas {
 .top-row {
   grid-row-start: 1;
 }
+.first-row {
+  grid-row: 2/3;
+  grid-column: 1/4;
+}
 .second-row {
-  grid-row-start: 2;
+  grid-row: 3/4;
 }
 .bottom-row {
   grid-row-start: 4;

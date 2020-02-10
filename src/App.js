@@ -375,7 +375,7 @@ function App() {
           <FullscreenButton element={topElement}/>
           <button onClick={()=>dm.show(<SettingsDialog storage={storage}/>)}><Settings/></button>
         </Toolbox>
-        <EditableLabel className="second-row" initialValue={doc.title} onDoneEditing={(value)=>{
+        <EditableLabel className="first-row" initialValue={doc.title} onDoneEditing={(value)=>{
           doc.title = value
           storage.save(doc,colors).then(()=> setDirty(false))
         }}/>

@@ -123,7 +123,7 @@ export function copyToCanvas(src, dst) {
 
 export const Spacer = () => <div style={{flex:1}}/>
 
-export const EditableLabel = ({initialValue,onDoneEditing})=>{
+export const EditableLabel = ({initialValue,onDoneEditing, className})=>{
     const [editing, setEditing] = useState(false)
     const [value, setValue] = useState(initialValue)
     //update value when initial value changes
@@ -134,7 +134,7 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
     })
 
     if(editing) {
-        return  <input className={"editable-label"} type="text" value={value} ref={input}
+        return  <input className={"editable-label " + className} type="text" value={value} ref={input}
                        onKeyDown={(e)=>{
                            if(e.key === 'Enter') {
                                if(onDoneEditing) onDoneEditing(e.target.value)
@@ -143,7 +143,7 @@ export const EditableLabel = ({initialValue,onDoneEditing})=>{
                        }}
                        onChange={(e)=>setValue(e.target.value)}/>
     } else {
-        return <label className={"editable-label"} onDoubleClick={()=> setEditing(true)}>{value}</label>
+        return <label className={"editable-label "+className} onDoubleClick={()=> setEditing(true)}>{value}</label>
     }
 }
 
